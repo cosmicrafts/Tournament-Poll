@@ -1,0 +1,26 @@
+{
+  "canisters": {
+    "tournament_poll_backend": {
+      "main": "src/tournament_poll_backend/main.mo",
+      "type": "motoko"
+    },
+    "tournament_poll_frontend": {
+      "dependencies": [
+        "tournament_poll_backend"
+      ],
+      "source": [
+        "src/tournament_poll_frontend/dist"
+      ],
+      "type": "assets",
+      "workspace": "tournament_poll_frontend"
+    }
+  },
+  "defaults": {
+    "build": {
+      "args": "",
+      "packtool": ""
+    }
+  },
+  "output_env_file": ".env",
+  "version": 1
+}

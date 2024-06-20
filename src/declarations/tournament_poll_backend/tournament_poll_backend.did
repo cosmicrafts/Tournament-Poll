@@ -1,0 +1,48 @@
+type Tournament = 
+ record {
+   expirationDate: Time;
+   id: nat;
+   isActive: bool;
+   name: text;
+   participants: vec principal;
+   prizePool: text;
+   startDate: Time;
+ };
+type Time = int;
+type Match = 
+ record {
+   id: nat;
+   participants: vec principal;
+   result: opt record {
+                 score: text;
+                 winner: principal;
+               };
+   status: text;
+ };
+service : {
+  adminUpdateMatchResult: (nat, principal, text) -> (bool);
+  closeRegistration: (nat) -> (bool);
+  confirmParticipation: (nat) -> (bool);
+  createTournament: (text, Time, text, Time) -> (nat);
+  disputeMatch: (nat, text) -> (bool);
+  forfeitMatch: (nat, principal) -> (bool);
+  getActiveTournaments: () -> (vec Tournament) query;
+  getAllTournaments: () -> (vec Tournament) query;
+  getInactiveTournaments: () -> (vec Tournament) query;
+  getRegisteredUsers: (nat) ->
+   (vec
+     record {
+       avatarId: nat;
+       elo: nat;
+       "principal": principal;
+       username: text;
+     }) query;
+  getTournamentBracket: (nat) -> (record {matches: vec Match;}) query;
+  joinTournament: (nat) -> (bool);
+  manageDispute: (nat, text) -> (bool);
+  registerUser: () -> (bool);
+  resolveDispute: (nat, text) -> (bool);
+  submitFeedback: (nat, text) -> (bool);
+  submitMatchResult: (nat, principal, text) -> (bool);
+  updateBracket: (nat) -> (bool);
+}
