@@ -1,3 +1,4 @@
+<!-- App.vue -->
 <template>
   <main>
     <header>
@@ -11,5 +12,5 @@
 </script>
 
 <style>
-/* Add your global styles here */
+/* Global styles already defined in index.scss */
 </style>

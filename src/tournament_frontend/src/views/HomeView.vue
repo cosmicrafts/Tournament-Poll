@@ -36,7 +36,6 @@ const expirationDate = ref('');
 
 const fetchAllTournaments = async () => {
   await tournamentStore.fetchAllTournaments();
-  console.log('Tournaments after fetch:', tournamentStore.tournaments); // Log the tournaments after fetch
 };
 
 const createTournament = async () => {
@@ -50,5 +49,17 @@ onMounted(() => {
 </script>
 
 <style scoped>
-/* Add your scoped styles here */
+ul {
+  padding: 0;
+  list-style: none;
+}
+
+li {
+  padding: 10px;
+  border-bottom: 1px solid #ddd;
+}
+
+li:last-child {
+  border-bottom: none;
+}
 </style>

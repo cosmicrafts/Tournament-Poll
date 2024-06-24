@@ -5,10 +5,11 @@ import type { Principal } from '@dfinity/principal';
 interface Match {
   id: bigint;
   participants: Principal[];
-  result: { winner: Principal; score: string }[];
+  result: { winner: Principal; score: string }[] | null;
   status: string;
   tournamentId: bigint;
 }
+
 
 interface Tournament {
   id: bigint;
