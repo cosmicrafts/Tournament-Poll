@@ -6,6 +6,7 @@ export const idlFactory = ({ IDL }) => {
     'name' : IDL.Text,
     'isActive' : IDL.Bool,
     'expirationDate' : Time,
+    'bracketCreated' : IDL.Bool,
     'prizePool' : IDL.Text,
     'startDate' : Time,
   });
@@ -16,37 +17,23 @@ export const idlFactory = ({ IDL }) => {
       IDL.Record({ 'winner' : IDL.Principal, 'score' : IDL.Text })
     ),
     'participants' : IDL.Vec(IDL.Principal),
+    'tournamentId' : IDL.Nat,
   });
   return IDL.Service({
-    'adminUpdateMatchResult' : IDL.Func(
-        [IDL.Nat, IDL.Principal, IDL.Text],
-        [IDL.Bool],
-        [],
-      ),
-    'closeRegistration' : IDL.Func([IDL.Nat], [IDL.Bool], []),
-    'confirmParticipation' : IDL.Func([IDL.Nat], [IDL.Bool], []),
+    'adminUpdateMatch' : IDL.Func([IDL.Nat, IDL.Text], [IDL.Bool], []),
     'createTournament' : IDL.Func(
         [IDL.Text, Time, IDL.Text, Time],
         [IDL.Nat],
         [],
       ),
+    'deleteAllTournaments' : IDL.Func([], [IDL.Bool], []),
     'disputeMatch' : IDL.Func([IDL.Nat, IDL.Text], [IDL.Bool], []),
-    'forfeitMatch' : IDL.Func([IDL.Nat, IDL.Principal], [IDL.Bool], []),
     'getActiveTournaments' : IDL.Func([], [IDL.Vec(Tournament)], ['query']),
     'getAllTournaments' : IDL.Func([], [IDL.Vec(Tournament)], ['query']),
     'getInactiveTournaments' : IDL.Func([], [IDL.Vec(Tournament)], ['query']),
     'getRegisteredUsers' : IDL.Func(
         [IDL.Nat],
-        [
-          IDL.Vec(
-            IDL.Record({
-              'elo' : IDL.Nat,
-              'principal' : IDL.Principal,
-              'username' : IDL.Text,
-              'avatarId' : IDL.Nat,
-            })
-          ),
-        ],
+        [IDL.Vec(IDL.Principal)],
         ['query'],
       ),
     'getTournamentBracket' : IDL.Func(
@@ -55,15 +42,8 @@ export const idlFactory = ({ IDL }) => {
         ['query'],
       ),
     'joinTournament' : IDL.Func([IDL.Nat], [IDL.Bool], []),
-    'manageDispute' : IDL.Func([IDL.Nat, IDL.Text], [IDL.Bool], []),
-    'registerUser' : IDL.Func([], [IDL.Bool], []),
-    'resolveDispute' : IDL.Func([IDL.Nat, IDL.Text], [IDL.Bool], []),
     'submitFeedback' : IDL.Func([IDL.Nat, IDL.Text], [IDL.Bool], []),
-    'submitMatchResult' : IDL.Func(
-        [IDL.Nat, IDL.Principal, IDL.Text],
-        [IDL.Bool],
-        [],
-      ),
+    'submitMatchResult' : IDL.Func([IDL.Nat, IDL.Text], [IDL.Bool], []),
     'updateBracket' : IDL.Func([IDL.Nat], [IDL.Bool], []),
   });
 };

@@ -1,18 +1,18 @@
 {
   "canisters": {
-    "tournament_poll_backend": {
-      "main": "src/tournament_poll_backend/main.mo",
+    "tournament_backend": {
+      "main": "src/tournament_backend/main.mo",
       "type": "motoko"
     },
-    "tournament_poll_frontend": {
+    "tournament_frontend": {
       "dependencies": [
-        "tournament_poll_backend"
+        "tournament_backend"
       ],
       "source": [
-        "src/tournament_poll_frontend/dist"
+        "src/tournament_frontend/dist"
       ],
       "type": "assets",
-      "workspace": "tournament_poll_frontend"
+      "workspace": "tournament_frontend"
     }
   },
   "defaults": {

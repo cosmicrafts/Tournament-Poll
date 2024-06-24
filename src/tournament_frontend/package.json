@@ -1,10 +1,10 @@
 {
-  "name": "tournament_poll_frontend",
+  "name": "tournament_frontend",
   "private": true,
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "setup": "npm i && dfx canister create tournament_poll_backend && dfx generate tournament_poll_backend && dfx deploy",
+    "setup": "npm i && dfx canister create tournament_backend && dfx generate tournament_backend && dfx deploy",
     "start": "vite --port 3000",
     "prebuild": "dfx generate",
     "build": "tsc && vite build",

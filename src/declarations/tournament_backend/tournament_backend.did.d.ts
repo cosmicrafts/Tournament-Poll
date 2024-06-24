@@ -7,6 +7,7 @@ export interface Match {
   'status' : string,
   'result' : [] | [{ 'winner' : Principal, 'score' : string }],
   'participants' : Array<Principal>,
+  'tournamentId' : bigint,
 }
 export type Time = bigint;
 export interface Tournament {
@@ -15,37 +16,23 @@ export interface Tournament {
   'name' : string,
   'isActive' : boolean,
   'expirationDate' : Time,
+  'bracketCreated' : boolean,
   'prizePool' : string,
   'startDate' : Time,
 }
 export interface _SERVICE {
-  'adminUpdateMatchResult' : ActorMethod<[bigint, Principal, string], boolean>,
-  'closeRegistration' : ActorMethod<[bigint], boolean>,
-  'confirmParticipation' : ActorMethod<[bigint], boolean>,
+  'adminUpdateMatch' : ActorMethod<[bigint, string], boolean>,
   'createTournament' : ActorMethod<[string, Time, string, Time], bigint>,
+  'deleteAllTournaments' : ActorMethod<[], boolean>,
   'disputeMatch' : ActorMethod<[bigint, string], boolean>,
-  'forfeitMatch' : ActorMethod<[bigint, Principal], boolean>,
   'getActiveTournaments' : ActorMethod<[], Array<Tournament>>,
   'getAllTournaments' : ActorMethod<[], Array<Tournament>>,
   'getInactiveTournaments' : ActorMethod<[], Array<Tournament>>,
-  'getRegisteredUsers' : ActorMethod<
-    [bigint],
-    Array<
-      {
-        'elo' : bigint,
-        'principal' : Principal,
-        'username' : string,
-        'avatarId' : bigint,
-      }
-    >
-  >,
+  'getRegisteredUsers' : ActorMethod<[bigint], Array<Principal>>,
   'getTournamentBracket' : ActorMethod<[bigint], { 'matches' : Array<Match> }>,
   'joinTournament' : ActorMethod<[bigint], boolean>,
-  'manageDispute' : ActorMethod<[bigint, string], boolean>,
-  'registerUser' : ActorMethod<[], boolean>,
-  'resolveDispute' : ActorMethod<[bigint, string], boolean>,
   'submitFeedback' : ActorMethod<[bigint, string], boolean>,
-  'submitMatchResult' : ActorMethod<[bigint, Principal, string], boolean>,
+  'submitMatchResult' : ActorMethod<[bigint, string], boolean>,
   'updateBracket' : ActorMethod<[bigint], boolean>,
 }
 export declare const idlFactory: IDL.InterfaceFactory;

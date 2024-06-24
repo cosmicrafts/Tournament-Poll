@@ -3,7 +3,7 @@
     "node": ">=16.0.0",
     "npm": ">=7.0.0"
   },
-  "name": "tournament_poll",
+  "name": "tournament",
   "scripts": {
     "build": "npm run build --workspaces --if-present",
     "prebuild": "npm run prebuild --workspaces --if-present",
@@ -13,6 +13,9 @@
   },
   "type": "module",
   "workspaces": [
-    "src/tournament_poll_frontend"
-  ]
+    "src/tournament_frontend"
+  ],
+  "dependencies": {
+    "vue-router": "^4.4.0"
+  }
 }
