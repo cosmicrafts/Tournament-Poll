@@ -1,11 +1,15 @@
 <template>
       <div class="match">
         <div class="match-id">Match ID: {{ match.id }}</div>
-        <div class="participant">
-          {{ match.participants[0].toText() }}: {{ match.result && match.result.length > 0 ? match.result[0].score : '-' }}
-        </div>
-        <div class="participant">
-          {{ match.participants[1].toText() }}: {{ match.result && match.result.length > 1 ? match.result[1].score : '-' }}
+        <div class="match-details">
+          <div class="participant">
+            <span>{{ match.participants[0].toText() }}</span>
+            <span>{{ match.result && match.result.length > 0 ? match.result[0].score : '-' }}</span>
+          </div>
+          <div class="participant">
+            <span>{{ match.participants[1].toText() }}</span>
+            <span>{{ match.result && match.result.length > 1 ? match.result[1].score : '-' }}</span>
+          </div>
         </div>
       </div>
     </template>
@@ -25,7 +29,6 @@
       margin: 10px 0;
       display: flex;
       flex-direction: column;
-      align-items: flex-start;
       background: #fff;
       border-radius: 5px;
     }
@@ -35,8 +38,16 @@
       margin-bottom: 10px;
     }
     
+    .match-details {
+      display: flex;
+      justify-content: space-between;
+      width: 100%;
+    }
+    
     .participant {
-      margin-bottom: 5px;
+      display: flex;
+      justify-content: space-between;
+      width: 45%;
     }
     </style>
     

@@ -7,7 +7,7 @@
     <p>Status: {{ tournament.isActive ? 'Active' : 'Inactive' }}</p>
     <h3>Participants</h3>
     <ul>
-      <li v-for="participant in participants" :key="participant">
+      <li v-for="participant in participants" :key="participant.toText()">
         {{ participant.toText() }}
       </li>
     </ul>
