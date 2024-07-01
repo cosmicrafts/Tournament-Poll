@@ -86,7 +86,7 @@ onMounted(fetchTournamentDetails);
 <style scoped>
 .bracket {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   justify-content: space-around;
   margin-top: 20px;
 }

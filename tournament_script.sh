@@ -5,7 +5,7 @@ CANISTER_NAME="tournament_backend"
 
 # Define identities
 ADMIN_IDENTITY="bizkit"
-IDENTITIES=("player1" "player2" "player3" "player4" "player5" "player6" "player7" "player8" "player9" "player10" "player11" "player12" "player13" "player14" "player15" "player16" "player17" "player18" "player19" "player20" "player21" "player22")
+IDENTITIES=("player1" "player2" "player3" "player4" "player5" "player6" "player7" "player8")
 declare -A PRINCIPALS
 
 # Create a tournament and capture the tournament ID
