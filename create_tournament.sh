@@ -3,13 +3,25 @@
 # Set the canister name for local network
 CANISTER_NAME="tournament_backend"
 
-# Define identities
+# Define admin identity
 ADMIN_IDENTITY="bizkit"
-IDENTITIES=("player1" "player2" "player3" "player4" "player5" "player6" "player7" "player8" "player9" "player10" "player11" "player12" "player13" "player14" "player15" "player16" "player17" "player18" "player19" "player20" "player21" "player22" "player23" "player24" "player25" "player26" "player27" "player28" "player29" "player30" "player31" "player32")
 declare -A PRINCIPALS
 
-# Create a tournament and capture the tournament ID
+# Prompt for the number of identities
+read -p "Enter the number of identities to use (e.g., 8, 16, etc): " NUM_IDENTITIES
+
+# Generate the IDENTITIES array based on the input
+IDENTITIES=()
+for ((i=1; i<=NUM_IDENTITIES; i++)); do
+  IDENTITIES+=("player$i")
+done
+
+# Display the selected identities
+echo "Using the following identities: ${IDENTITIES[@]}"
+
+# Use the admin identity to create a tournament and capture the tournament ID
 echo "Creating a tournament..."
+dfx identity use $ADMIN_IDENTITY
 TOURNAMENT_ID=$(dfx canister call $CANISTER_NAME createTournament '("Test Tournament", 1625151600000, "100 ICP", 1627730000000)' | grep -oP '(?<=\().*?(?=\ : nat\))')
 
 # Check if the tournament was created successfully
@@ -55,6 +67,11 @@ fetch_and_parse_bracket() {
 
 # Fetch the initial bracket
 fetch_and_parse_bracket
+
+# End the script after fetching the initial bracket
+exit 0
+
+# The rest of the script will not be executed because of the exit command above
 
 # Switch to admin identity to verify and update matches
 echo "Verifying and updating matches as admin..."

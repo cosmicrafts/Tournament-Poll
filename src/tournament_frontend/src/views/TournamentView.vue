@@ -5,10 +5,10 @@
     <p>Expiration Date: {{ formatDate(tournament.expirationDate) }}</p>
     <p>Prize Pool: {{ tournament.prizePool }}</p>
     <p>Status: {{ tournament.isActive ? 'Active' : 'Inactive' }}</p>
-    <h3>Participants</h3>
+    <h3>Participants ({{ participantCount }})</h3>
     <ul>
       <li v-for="participant in participants" :key="participant.toText()">
-        {{ participant.toText() }}
+        {{ formatPrincipal(participant.toText()) }}
       </li>
     </ul>
     <button @click="joinTournament">Join Tournament</button>
@@ -16,7 +16,9 @@
     <h3>Matches</h3>
     <div class="bracket">
       <div class="round" v-for="(roundMatches, roundIndex) in organizedMatches" :key="roundIndex">
-        <Match v-for="match in roundMatches" :key="match.id" :match="match" />
+        <div class="match" v-for="match in roundMatches" :key="match.id">
+          <Match :match="match" />
+        </div>
       </div>
     </div>
   </section>
@@ -36,19 +38,41 @@ const tournament = ref({});
 const participants = ref([]);
 const matches = ref([]);
 
-// Organize matches into rounds
-const organizedMatches = computed(() => {
+// Function to organize matches into rounds
+const organizeMatchesIntoRounds = (matches) => {
   const rounds = [];
-  let currentRound = [];
-  matches.value.forEach((match, index) => {
-    currentRound.push(match);
-    if (currentRound.length === 2) { // Adjust based on the number of matches per round
-      rounds.push(currentRound);
-      currentRound = [];
+  let totalMatches = matches.length;
+  let currentRoundMatches = Math.ceil(totalMatches / 2);
+
+  // Initialize rounds
+  while (totalMatches > 0) {
+    rounds.push([]);
+    totalMatches = Math.floor(totalMatches / 2);
+  }
+
+  let roundIndex = 0;
+  let matchCounter = 0;
+  currentRoundMatches = Math.ceil(matches.length / 2);
+
+  // Organize matches into rounds
+  while (matchCounter < matches.length) {
+    for (let i = 0; i < currentRoundMatches && matchCounter < matches.length; i++) {
+      rounds[roundIndex].push(matches[matchCounter]);
+      matchCounter++;
     }
-  });
-  if (currentRound.length > 0) rounds.push(currentRound);
+    roundIndex++;
+    currentRoundMatches = Math.ceil(currentRoundMatches / 2);
+  }
+
   return rounds;
+};
+
+const organizedMatches = computed(() => {
+  return organizeMatchesIntoRounds(matches.value);
+});
+
+const participantCount = computed(() => {
+  return participants.value.length;
 });
 
 const fetchTournamentDetails = async () => {
@@ -80,15 +104,20 @@ const formatDate = (bigIntDate) => {
   return 'Invalid Date';
 };
 
+const formatPrincipal = (principal) => {
+  return `${principal.slice(0, 5)}..${principal.slice(-3)}`;
+};
+
 onMounted(fetchTournamentDetails);
 </script>
 
 <style scoped>
 .bracket {
   display: flex;
-  flex-wrap: nowrap;
-  justify-content: space-around;
+  justify-content: space-between;
   margin-top: 20px;
+  overflow-x: auto;
+  padding: 20px 0;
 }
 
 .round {
@@ -96,5 +125,112 @@ onMounted(fetchTournamentDetails);
   flex-direction: column;
   align-items: center;
   margin: 0 10px;
+  position: relative;
+}
+
+.round::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: -10px;
+  width: 2px;
+  background: #ccc;
+}
+
+.match + .match {
+  margin-top: 20px;
+}
+
+.match {
+  position: relative;
+  border: 1px solid #ccc;
+  padding: 15px;
+  background: #fff;
+  border-radius: 5px;
+  margin-bottom: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.match:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.match-id {
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.match-details {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+
+.participant {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  margin: 5px 0;
+}
+
+.participant-id {
+  cursor: pointer;
+  color: #007bff;
+}
+
+.participant-id:hover {
+  text-decoration: underline;
+}
+
+.match::before,
+.match::after {
+  content: '';
+  position: absolute;
+  background: #ccc;
+}
+
+.match::before {
+  top: 50%;
+  left: -20px;
+  width: 20px;
+  height: 2px;
+}
+
+.match::after {
+  top: 50%;
+  left: 100%;
+  width: 20px;
+  height: 2px;
+}
+
+.round:first-of-type .match::before {
+  display: none;
+}
+
+.round:last-of-type .match::after {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .bracket {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .round {
+    flex-direction: row;
+    margin: 10px 0;
+  }
+
+  .match::before,
+  .match::after {
+    display: none;
+  }
 }
 </style>

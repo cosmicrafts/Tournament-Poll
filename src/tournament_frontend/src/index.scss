@@ -51,17 +51,3 @@ button {
 button:hover {
   background-color: #0056b3;
 }
-
-.bracket {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-around;
-  margin-top: 20px;
-}
-
-.round {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  margin: 0 10px;
-}
