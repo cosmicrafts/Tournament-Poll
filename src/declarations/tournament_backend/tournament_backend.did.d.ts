@@ -35,6 +35,10 @@ export interface _SERVICE {
   'submitFeedback' : ActorMethod<[bigint, string], boolean>,
   'submitMatchResult' : ActorMethod<[bigint, string], boolean>,
   'updateBracket' : ActorMethod<[bigint], boolean>,
+  'updateBracketAfterMatchUpdate' : ActorMethod<
+    [bigint, bigint, Principal],
+    boolean
+  >,
 }
 export declare const idlFactory: IDL.InterfaceFactory;
 export declare const init: (args: { IDL: typeof IDL }) => IDL.Type[];

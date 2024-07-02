@@ -20,7 +20,7 @@ actor Backend {
         prizePool: Text;
         expirationDate: Time.Time;
         participants: [Principal];
-        registeredParticipants: [Principal]; // New field to store registered participants
+        registeredParticipants: [Principal];
         isActive: Bool;
         bracketCreated: Bool;
     };
@@ -60,26 +60,22 @@ actor Backend {
     };
 
     public shared ({caller}) func joinTournament(tournamentId: Nat) : async Bool {
-        // Check if the tournament exists
         if (tournamentId >= tournaments.size()) {
             return false;
         };
 
         let tournament = tournaments[tournamentId];
 
-        // Check if the user is already a participant
         if (Array.indexOf<Principal>(caller, tournament.participants, func (a: Principal, b: Principal) : Bool { a == b }) != null) {
             return false;
         };
 
-        // Add the user to the tournament participants
         var updatedParticipants = Buffer.Buffer<Principal>(tournament.participants.size() + 1);
         for (participant in tournament.participants.vals()) {
             updatedParticipants.add(participant);
         };
         updatedParticipants.add(caller);
 
-        // Add the user to the registered participants if bracket is not created
         var updatedRegisteredParticipants = Buffer.Buffer<Principal>(tournament.registeredParticipants.size() + 1);
         for (participant in tournament.registeredParticipants.vals()) {
             updatedRegisteredParticipants.add(participant);
@@ -129,17 +125,14 @@ actor Backend {
     };
 
     public shared ({caller}) func submitMatchResult(matchId: Nat, score: Text) : async Bool {
-        // Find the match with the given ID
         let matchOpt = Array.find<Match>(matches, func (m: Match) : Bool { m.id == matchId });
         switch (matchOpt) {
             case (?match) {
-                // Ensure the caller is a participant in the match
                 let isParticipant = Array.find<Principal>(match.participants, func (p: Principal) : Bool { p == caller }) != null;
                 if (not isParticipant) {
                     return false;
                 };
 
-                // Update the match with the result
                 var updatedMatches = Buffer.Buffer<Match>(matches.size());
                 for (m in matches.vals()) {
                     if (m.id == matchId) {
@@ -164,13 +157,11 @@ actor Backend {
     };
 
     public shared ({caller}) func disputeMatch(matchId: Nat, reason: Text) : async Bool {
-        // Check if the match exists
         let matchExists = Array.find(matches, func (m: Match) : Bool { m.id == matchId }) != null;
         if (not matchExists) {
             return false;
         };
 
-        // Add the dispute to the disputes array
         let newDispute = { principal = caller; matchId = matchId; reason = reason; status = "pending" };
         let updatedDisputes = Buffer.Buffer<{ principal: Principal; matchId: Nat; reason: Text; status: Text }>(disputes.size() + 1);
         for (dispute in disputes.vals()) {
@@ -183,40 +174,42 @@ actor Backend {
     };
 
     public shared ({caller}) func adminUpdateMatch(matchId: Nat, score: Text) : async Bool {
-        if (caller != Principal.fromText("vam5o-bdiga-izgux-6cjaz-53tck-eezzo-fezki-t2sh6-xefok-dkdx7-pae") and
-            caller != Principal.fromText("bdycp-b54e6-fvsng-ouies-a6zfm-khbnh-wcq3j-pv7qt-gywe2-em245-3ae")) {
+    if (caller != Principal.fromText("vam5o-bdiga-izgux-6cjaz-53tck-eezzo-fezki-t2sh6-xefok-dkdx7-pae") and
+        caller != Principal.fromText("bdycp-b54e6-fvsng-ouies-a6zfm-khbnh-wcq3j-pv7qt-gywe2-em245-3ae")) {
+        return false;
+    };
+
+    let matchIndex = Array.find<Match>(matches, func (m: Match) : Bool { m.id == matchId });
+    switch (matchIndex) {
+        case (?match) {
+            var updatedMatches = Buffer.Buffer<Match>(matches.size());
+            for (m in matches.vals()) {
+                if (m.id == matchId) {
+                    updatedMatches.add({
+                        id = m.id;
+                        tournamentId = m.tournamentId;
+                        participants = m.participants;
+                        result = ?{winner = m.participants[0]; score = score}; // Assuming the winner is the first participant
+                        status = "verified";
+                    });
+                } else {
+                    updatedMatches.add(m);
+                }
+            };
+            matches := Buffer.toArray(updatedMatches);
+
+            // Update the bracket directly by advancing the winner
+            Debug.print("Admin verified match: " # Nat.toText(matchId) # " with winner: " # Principal.toText(match.participants[0]));
+            ignore await updateBracketAfterMatchUpdate(match.tournamentId, match.id, match.participants[0]);
+
+            return true;
+        };
+        case null {
             return false;
         };
+    }
+};
 
-        let matchIndex = Array.find<Match>(matches, func (m: Match) : Bool { m.id == matchId });
-        switch (matchIndex) {
-            case (?match) {
-                var updatedMatches = Buffer.Buffer<Match>(matches.size());
-                for (m in matches.vals()) {
-                    if (m.id == matchId) {
-                        updatedMatches.add({
-                            id = m.id;
-                            tournamentId = m.tournamentId;
-                            participants = m.participants;
-                            result = ?{winner = m.participants[0]; score = score}; // Assuming the winner is the first participant
-                            status = "verified";
-                        });
-                    } else {
-                        updatedMatches.add(m);
-                    }
-                };
-                matches := Buffer.toArray(updatedMatches);
-
-                // Update the bracket after verifying the match result
-                ignore await updateBracket(match.tournamentId);
-
-                return true;
-            };
-            case null {
-                return false;
-            };
-        }
-    };
 
     // Calculate the base-2 logarithm of a number
     func log2(x: Nat): Nat {
@@ -228,6 +221,51 @@ actor Backend {
         };
         return result;
     };
+
+    // Helper function to update the bracket after a match result is verified
+    public shared func updateBracketAfterMatchUpdate(tournamentId: Nat, matchId: Nat, winner: Principal) : async Bool {
+    if (tournamentId >= tournaments.size()) {
+        Debug.print("Tournament does not exist.");
+        return false;
+    };
+
+    var tournament = tournaments[tournamentId];
+
+    // Find the next match for the winner to advance to
+    var updatedMatches = Buffer.Buffer<Match>(matches.size());
+    for (m in matches.vals()) {
+        if (m.tournamentId == tournamentId and m.id > matchId) {
+            if (Array.indexOf<Principal>(Principal.fromText("2vxsx-fae"), m.participants, func (a: Principal, b: Principal) : Bool { a == b }) != null) {
+                var updatedParticipants = Buffer.Buffer<Principal>(m.participants.size());
+                var placeholderReplaced = false;
+                for (p in m.participants.vals()) {
+                    if (p == Principal.fromText("2vxsx-fae") and not placeholderReplaced) {
+                        updatedParticipants.add(winner);
+                        placeholderReplaced := true;
+                    } else {
+                        updatedParticipants.add(p);
+                    }
+                };
+                updatedMatches.add({
+                    id = m.id;
+                    tournamentId = m.tournamentId;
+                    participants = Buffer.toArray(updatedParticipants);
+                    result = m.result;
+                    status = m.status;
+                });
+                Debug.print("Winner: " # Principal.toText(winner) # " advanced to match: " # Nat.toText(m.id));
+            } else {
+                updatedMatches.add(m);
+            }
+        } else {
+            updatedMatches.add(m);
+        }
+    };
+    matches := Buffer.toArray(updatedMatches);
+
+    return true;
+};
+
 
     public shared func updateBracket(tournamentId: Nat) : async Bool {
         if (tournamentId >= tournaments.size()) {

@@ -36,4 +36,5 @@ service : {
   submitFeedback: (nat, text) -> (bool);
   submitMatchResult: (nat, text) -> (bool);
   updateBracket: (nat) -> (bool);
+  updateBracketAfterMatchUpdate: (nat, nat, principal) -> (bool);
 }

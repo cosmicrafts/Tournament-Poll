@@ -46,6 +46,11 @@ export const idlFactory = ({ IDL }) => {
     'submitFeedback' : IDL.Func([IDL.Nat, IDL.Text], [IDL.Bool], []),
     'submitMatchResult' : IDL.Func([IDL.Nat, IDL.Text], [IDL.Bool], []),
     'updateBracket' : IDL.Func([IDL.Nat], [IDL.Bool], []),
+    'updateBracketAfterMatchUpdate' : IDL.Func(
+        [IDL.Nat, IDL.Nat, IDL.Principal],
+        [IDL.Bool],
+        [],
+      ),
   });
 };
 export const init = ({ IDL }) => { return []; };
