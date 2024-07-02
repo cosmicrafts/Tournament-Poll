@@ -16,9 +16,7 @@
     <h3>Matches</h3>
     <div class="bracket">
       <div class="round" v-for="(roundMatches, roundIndex) in organizedMatches" :key="roundIndex">
-        <div class="match" v-for="match in roundMatches" :key="match.id">
-          <Match :match="match" />
-        </div>
+        <Match v-for="match in roundMatches" :key="match.id" :match="match" />
       </div>
     </div>
   </section>
@@ -114,7 +112,7 @@ onMounted(fetchTournamentDetails);
 <style scoped>
 .bracket {
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-start; /* Align items to the left */
   margin-top: 20px;
   overflow-x: auto;
   padding: 20px 0;
@@ -123,28 +121,23 @@ onMounted(fetchTournamentDetails);
 .round {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  margin: 0 10px;
+  align-items: flex-start; /* Align items to the left */
+  margin: 0 10px; /* Adjust margin as needed */
   position: relative;
 }
 
+/* Remove the vertical line */
 .round::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: -10px;
-  width: 2px;
-  background: #ccc;
+  display: none;
 }
 
 .match + .match {
-  margin-top: 20px;
+  margin-top: 10px; /* Reduce margin to bring matches closer together */
 }
 
 .match {
   position: relative;
-  border: 1px solid #ccc;
+  border: 1px solid #ccc; /* Remove border */
   padding: 15px;
   background: #fff;
   border-radius: 5px;
@@ -153,6 +146,7 @@ onMounted(fetchTournamentDetails);
   flex-direction: column;
   align-items: center;
   transition: transform 0.2s, box-shadow 0.2s;
+  width: 180px; /* Fixed width for each match */
 }
 
 .match:hover {
@@ -182,6 +176,7 @@ onMounted(fetchTournamentDetails);
 .participant-id {
   cursor: pointer;
   color: #007bff;
+  margin-right: 10px; /* Add space between the participant ID and the result */
 }
 
 .participant-id:hover {

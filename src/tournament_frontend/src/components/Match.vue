@@ -45,6 +45,11 @@ const copyToClipboard = (text) => {
   transition: transform 0.2s, box-shadow 0.2s;
 }
 
+.match:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
 .match-id {
   font-weight: bold;
   margin-bottom: 10px;
@@ -67,12 +72,16 @@ const copyToClipboard = (text) => {
 .participant-id {
   cursor: pointer;
   color: #007bff;
+  margin-right: 10px; /* Add space between the participant ID and the result */
+}
+
+.participant-id:hover {
+  text-decoration: underline;
 }
 
 @media (max-width: 768px) {
   .match-details {
     flex-direction: row;
   }
-
 }
 </style>
