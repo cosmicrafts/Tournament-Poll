@@ -3,6 +3,8 @@ import Principal "mo:base/Principal";
 import Buffer "mo:base/Buffer";
 import Time "mo:base/Time";
 import Random "mo:base/Random";
+import Int "mo:base/Int";
+import Iter "mo:base/Iter";
 
 actor Backend {
     stable var tournaments: [Tournament] = [];
@@ -255,7 +257,7 @@ actor Backend {
                                             expirationDate = tournament.expirationDate;
                                             participants = nextParticipants;
                                             isActive = true;
-                                            bracketCreated = true
+                                            bracketCreated = tournament.bracketCreated
                                         });
                                     } else {
                                         updatedTournaments.add(tournament);
@@ -277,132 +279,130 @@ actor Backend {
         }
     };
 
-    public shared func updateBracket(tournamentId: Nat) : async Bool {
-        if (tournamentId >= tournaments.size()) {
-            return false;
-        };
-
-        var tournament = tournaments[tournamentId];
-        if (tournament.bracketCreated) {
-            return false;
-        };
-
-        let participants = tournament.participants;
-
-        // Close registration
-        let updatedTournament = {
-            id = tournament.id;
-            name = tournament.name;
-            startDate = tournament.startDate;
-            prizePool = tournament.prizePool;
-            expirationDate = tournament.expirationDate;
-            participants = tournament.participants;
-            isActive = false;
-            bracketCreated = true;
-        };
-
-        tournaments := Array.tabulate(tournaments.size(), func(i: Nat): Tournament {
-            if (i == tournamentId) {
-                updatedTournament
-            } else {
-                tournaments[i]
-            }
-        });
-
-        // Obtain a fresh blob of entropy
-        let entropy = await Random.blob();
-        let random = Random.Finite(entropy);
-
-        // Shuffle participants randomly using Fisher-Yates shuffle algorithm
-        let shuffledParticipants = Array.thaw<Principal>(participants);
-        let n = shuffledParticipants.size();
-        var i = n;
-        while (i > 1) {
-            i -= 1;
-            let j = switch (random.range(32)) {
-                case (?value) { value % (i + 1) };
-                case null { i }
-            };
-            let temp = shuffledParticipants[i];
-            shuffledParticipants[i] := shuffledParticipants[j];
-            shuffledParticipants[j] := temp;
-        };
-
-        // Recursive function to create matches for all rounds
-        func createMatches(participants: [Principal], matchId: Nat) : (Buffer.Buffer<Match>, Nat) {
-            var newMatches = Buffer.Buffer<Match>(0);
-            var currentMatchId = matchId;
-            let numMatches = participants.size() / 2;
-
-            // Create matches for the current round
-            var i = 0;
-            while (i < numMatches) {
-                newMatches.add({
-                    id = currentMatchId;
-                    tournamentId = tournamentId;
-                    participants = [participants[2 * i], participants[2 * i + 1]];
-                    result = null;
-                    status = "scheduled";
-                });
-                currentMatchId += 1;
-                i += 1;
-            };
-
-            // Handle byes for non-power of two participants
-            if (participants.size() % 2 == 1) {
-                newMatches.add({
-                    id = currentMatchId;
-                    tournamentId = tournamentId;
-                    participants = [participants[participants.size() - 1], Principal.fromText("2vxsx-fae")]; // Using anonymous principal as a bye
-                    result = ?{winner = participants[participants.size() - 1]; score = "bye"};
-                    status = "verified";
-                });
-                currentMatchId += 1;
-            };
-
-            // Create matches for the next round if more than one match
-            if (numMatches > 1 or (participants.size() % 2 == 1 and participants.size() > 1)) {
-                var nextRoundParticipants = Buffer.Buffer<Principal>(0);
-                for (match in newMatches.vals()) {
-                    if (match.result != null) {
-                        switch (match.result) {
-                            case (?res) {
-                                nextRoundParticipants.add(res.winner);
-                            };
-                            case null {};
-                        }
-                    } else {
-                        nextRoundParticipants.add(match.participants[0]);
-                    }
-                };
-                let nextRoundResult = createMatches(Buffer.toArray(nextRoundParticipants), currentMatchId);
-                let nextRoundMatches = nextRoundResult.0;
-                let finalMatchId = nextRoundResult.1;
-                for (nextMatch in nextRoundMatches.vals()) {
-                    newMatches.add(nextMatch);
-                };
-                currentMatchId := finalMatchId;
-            };
-
-            return (newMatches, currentMatchId);
-        };
-
-        // Start creating matches from round 0
-        let roundMatchesResult = createMatches(Array.freeze(shuffledParticipants), 0);
-        let roundMatches = roundMatchesResult.0;
-
-        // Update the stable variable matches and the tournament
-        var updatedMatches = Buffer.Buffer<Match>(matches.size() + roundMatches.size());
-        for (match in matches.vals()) {
-            updatedMatches.add(match);
-        };
-        for (newMatch in roundMatches.vals()) {
-            updatedMatches.add(newMatch);
-        };
-        matches := Buffer.toArray(updatedMatches);
-
-        return true;
+// Calculate the base-2 logarithm of a number
+func log2(x: Nat): Nat {
+    var result = 0;
+    var value = x;
+    while (value > 1) {
+        value /= 2;
+        result += 1;
     };
+    return result;
+};
+
+
+public shared func updateBracket(tournamentId: Nat) : async Bool {
+    if (tournamentId >= tournaments.size()) {
+        return false;
+    };
+
+    var tournament = tournaments[tournamentId];
+    if (tournament.bracketCreated) {
+        return false;
+    };
+
+    let participants = tournament.participants;
+
+    // Close registration
+    let updatedTournament = {
+        id = tournament.id;
+        name = tournament.name;
+        startDate = tournament.startDate;
+        prizePool = tournament.prizePool;
+        expirationDate = tournament.expirationDate;
+        participants = tournament.participants;
+        isActive = false;
+        bracketCreated = true;
+    };
+
+    tournaments := Array.tabulate(tournaments.size(), func(i: Nat): Tournament {
+        if (i == tournamentId) {
+            updatedTournament
+        } else {
+            tournaments[i]
+        }
+    });
+
+    // Obtain a fresh blob of entropy
+    let entropy = await Random.blob();
+    let random = Random.Finite(entropy);
+
+    // Shuffle participants randomly using Fisher-Yates shuffle algorithm
+    let shuffledParticipants = Array.thaw<Principal>(participants);
+    let n = shuffledParticipants.size();
+    var i = n;
+    while (i > 1) {
+        i -= 1;
+        let j = switch (random.range(32)) {
+            case (?value) { value % (i + 1) };
+            case null { i }
+        };
+        let temp = shuffledParticipants[i];
+        shuffledParticipants[i] := shuffledParticipants[j];
+        shuffledParticipants[j] := temp;
+    };
+
+    // Calculate the next power of two greater than or equal to the number of participants
+    var totalParticipants = 1;
+    while (totalParticipants < n) {
+        totalParticipants *= 2;
+    };
+
+    // Create initial round matches
+    let roundMatches = Buffer.Buffer<Match>(0);
+    for (i in Iter.range(0, totalParticipants / 2 - 1)) {
+        let p1 = if (i * 2 < n) shuffledParticipants[i * 2] else Principal.fromText("2vxsx-fae");
+        let p2 = if (i * 2 + 1 < n) shuffledParticipants[i * 2 + 1] else Principal.fromText("2vxsx-fae");
+        roundMatches.add({
+            id = i;
+            tournamentId = tournamentId;
+            participants = [p1, p2];
+            result = null;
+            status = "scheduled";
+        });
+    };
+
+    // Function to recursively create matches for all rounds filled with "bye"
+    func createAllRounds(totalRounds: Nat, currentRound: Nat, matchId: Nat) : Buffer.Buffer<Match> {
+        let newMatches = Buffer.Buffer<Match>(0);
+        if (currentRound >= totalRounds) {
+            return newMatches;
+        };
+        let numMatches = (totalParticipants / (2 ** (currentRound + 1)));
+        for (i in Iter.range(0, numMatches - 1)) {
+            newMatches.add({
+                id = matchId + i;
+                tournamentId = tournamentId;
+                participants = [Principal.fromText("2vxsx-fae"), Principal.fromText("2vxsx-fae")];
+                result = null;
+                status = "scheduled";
+            });
+        };
+        let nextRoundMatches = createAllRounds(totalRounds, currentRound + 1, matchId + numMatches);
+        for (match in nextRoundMatches.vals()) {
+            newMatches.add(match);
+        };
+        return newMatches;
+    };
+
+    let totalRounds = log2(totalParticipants);
+    let subsequentRounds = createAllRounds(totalRounds, 1, totalParticipants / 2);
+
+    // Update the stable variable matches
+    var updatedMatches = Buffer.Buffer<Match>(matches.size() + roundMatches.size() + subsequentRounds.size());
+    for (match in matches.vals()) {
+        updatedMatches.add(match);
+    };
+    for (newMatch in roundMatches.vals()) {
+        updatedMatches.add(newMatch);
+    };
+    for (subsequentMatch in subsequentRounds.vals()) {
+        updatedMatches.add(subsequentMatch);
+    };
+    matches := Buffer.toArray(updatedMatches);
+
+    return true;
+};
 
     public query func getActiveTournaments() : async [Tournament] {
         return Array.filter<Tournament>(tournaments, func (t: Tournament) : Bool { t.isActive });
