@@ -16,6 +16,7 @@ export interface Tournament {
   'name' : string,
   'isActive' : boolean,
   'expirationDate' : Time,
+  'registeredParticipants' : Array<Principal>,
   'bracketCreated' : boolean,
   'prizePool' : string,
   'startDate' : Time,

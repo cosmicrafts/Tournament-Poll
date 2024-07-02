@@ -6,6 +6,7 @@ export const idlFactory = ({ IDL }) => {
     'name' : IDL.Text,
     'isActive' : IDL.Bool,
     'expirationDate' : Time,
+    'registeredParticipants' : IDL.Vec(IDL.Principal),
     'bracketCreated' : IDL.Bool,
     'prizePool' : IDL.Text,
     'startDate' : Time,
