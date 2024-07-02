@@ -223,37 +223,50 @@ actor Backend {
     };
 
     // Helper function to update the bracket after a match result is verified
-    public shared func updateBracketAfterMatchUpdate(tournamentId: Nat, matchId: Nat, winner: Principal) : async Bool {
+public shared func updateBracketAfterMatchUpdate(tournamentId: Nat, matchId: Nat, winner: Principal) : async Bool {
     if (tournamentId >= tournaments.size()) {
         Debug.print("Tournament does not exist.");
         return false;
     };
 
-    var tournament = tournaments[tournamentId];
-
-    // Find the next match for the winner to advance to
     var updatedMatches = Buffer.Buffer<Match>(matches.size());
+    var winnerAdvanced = false;
+    var currentRoundId = matchId / 2;
+    
     for (m in matches.vals()) {
-        if (m.tournamentId == tournamentId and m.id > matchId) {
-            if (Array.indexOf<Principal>(Principal.fromText("2vxsx-fae"), m.participants, func (a: Principal, b: Principal) : Bool { a == b }) != null) {
-                var updatedParticipants = Buffer.Buffer<Principal>(m.participants.size());
-                var placeholderReplaced = false;
-                for (p in m.participants.vals()) {
-                    if (p == Principal.fromText("2vxsx-fae") and not placeholderReplaced) {
-                        updatedParticipants.add(winner);
-                        placeholderReplaced := true;
-                    } else {
-                        updatedParticipants.add(p);
-                    }
+        if (m.tournamentId == tournamentId) {
+            if (m.id > matchId) {
+                // Determine if we are in a new round
+                let nextRoundId = m.id / 2;
+                if (nextRoundId > currentRoundId) {
+                    currentRoundId := nextRoundId;
+                    winnerAdvanced := false;
                 };
-                updatedMatches.add({
-                    id = m.id;
-                    tournamentId = m.tournamentId;
-                    participants = Buffer.toArray(updatedParticipants);
-                    result = m.result;
-                    status = m.status;
-                });
-                Debug.print("Winner: " # Principal.toText(winner) # " advanced to match: " # Nat.toText(m.id));
+
+                // Replace the placeholder with the winner if not already done
+                if (not winnerAdvanced and Array.indexOf<Principal>(Principal.fromText("2vxsx-fae"), m.participants, func (a: Principal, b: Principal) : Bool { a == b }) != null) {
+                    var updatedParticipants = Buffer.Buffer<Principal>(m.participants.size());
+                    var placeholderReplaced = false;
+                    for (p in m.participants.vals()) {
+                        if (p == Principal.fromText("2vxsx-fae") and not placeholderReplaced) {
+                            updatedParticipants.add(winner);
+                            placeholderReplaced := true;
+                        } else {
+                            updatedParticipants.add(p);
+                        }
+                    };
+                    updatedMatches.add({
+                        id = m.id;
+                        tournamentId = m.tournamentId;
+                        participants = Buffer.toArray(updatedParticipants);
+                        result = m.result;
+                        status = m.status;
+                    });
+                    Debug.print("Winner: " # Principal.toText(winner) # " advanced to match: " # Nat.toText(m.id));
+                    winnerAdvanced := true;
+                } else {
+                    updatedMatches.add(m);
+                }
             } else {
                 updatedMatches.add(m);
             }
@@ -261,8 +274,8 @@ actor Backend {
             updatedMatches.add(m);
         }
     };
-    matches := Buffer.toArray(updatedMatches);
 
+    matches := Buffer.toArray(updatedMatches);
     return true;
 };
 
