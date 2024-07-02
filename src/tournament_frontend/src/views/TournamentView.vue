@@ -15,8 +15,16 @@
     <button @click="updateBracket">Update Bracket</button>
     <h3>Matches</h3>
     <div class="bracket">
-      <div class="round" v-for="(roundMatches, roundIndex) in organizedMatches" :key="roundIndex">
-        <Match v-for="match in roundMatches" :key="match.id" :match="match" />
+      <div
+        class="round"
+        v-for="(roundMatches, roundIndex) in organizedMatches"
+        :key="roundIndex"
+        :class="'round-' + roundIndex"
+        :style="{'--matches-per-round': roundMatches.length}"
+      >
+        <div v-for="match in roundMatches" :key="match.id" class="match-wrapper">
+          <Match :match="match" />
+        </div>
       </div>
     </div>
   </section>
@@ -42,7 +50,7 @@ const organizeMatchesIntoRounds = (matches) => {
   let totalMatches = matches.length;
   let currentRoundMatches = Math.ceil(totalMatches / 2);
 
-  // Initialize rounds
+  // Initialize rounds with empty arrays
   while (totalMatches > 0) {
     rounds.push([]);
     totalMatches = Math.floor(totalMatches / 2);
@@ -111,42 +119,42 @@ onMounted(fetchTournamentDetails);
 
 <style scoped>
 .bracket {
-  display: flex;
-  justify-content: flex-start; /* Align items to the left */
+  display: grid;
+  grid-auto-flow: column; /* Flow grid items by column */
+  grid-auto-columns: min-content; /* Ensure columns only take as much width as needed */
+  gap: 10px; /* Adjust the space between columns */
   margin-top: 20px;
-  overflow-x: auto;
   padding: 20px 0;
+  justify-content: start; /* Align columns to the start */
+  overflow-x: auto; /* Enable horizontal scrolling if necessary */
 }
 
 .round {
   display: flex;
   flex-direction: column;
-  align-items: flex-start; /* Align items to the left */
-  margin: 0 10px; /* Adjust margin as needed */
+  justify-content: space-around;
   position: relative;
+  height: 100%;
 }
 
-/* Remove the vertical line */
-.round::before {
-  display: none;
-}
-
-.match + .match {
-  margin-top: 10px; /* Reduce margin to bring matches closer together */
+.match-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: calc(100% / var(--matches-per-round));
 }
 
 .match {
   position: relative;
-  border: 1px solid #ccc; /* Remove border */
+  border: 1px solid #ccc;
   padding: 15px;
   background: #fff;
   border-radius: 5px;
-  margin-bottom: 10px;
+  transition: transform 0.2s, box-shadow 0.2s;
+  width: 180px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  transition: transform 0.2s, box-shadow 0.2s;
-  width: 180px; /* Fixed width for each match */
 }
 
 .match:hover {
@@ -176,56 +184,23 @@ onMounted(fetchTournamentDetails);
 .participant-id {
   cursor: pointer;
   color: #007bff;
-  margin-right: 10px; /* Add space between the participant ID and the result */
+  margin-right: 10px;
 }
 
 .participant-id:hover {
   text-decoration: underline;
 }
 
-.match::before,
-.match::after {
-  content: '';
-  position: absolute;
-  background: #ccc;
-}
-
-.match::before {
-  top: 50%;
-  left: -20px;
-  width: 20px;
-  height: 2px;
-}
-
-.match::after {
-  top: 50%;
-  left: 100%;
-  width: 20px;
-  height: 2px;
-}
-
-.round:first-of-type .match::before {
-  display: none;
-}
-
-.round:last-of-type .match::after {
-  display: none;
-}
-
 @media (max-width: 768px) {
   .bracket {
-    flex-direction: column;
-    align-items: center;
+    grid-auto-flow: row;
+    grid-auto-rows: min-content;
   }
 
   .round {
     flex-direction: row;
-    margin: 10px 0;
-  }
-
-  .match::before,
-  .match::after {
-    display: none;
+    justify-content: center;
+    align-items: flex-start;
   }
 }
 </style>
