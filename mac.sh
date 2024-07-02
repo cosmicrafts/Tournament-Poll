@@ -1,28 +1,19 @@
 #!/bin/bash
 
+# Use bash shell to support associative arrays
+#!/usr/bin/env bash
+
 # Set the canister name for local network
 CANISTER_NAME="tournament_backend"
 
-# Define admin identity
+# Define identities
 ADMIN_IDENTITY="bizkit"
-declare -a PRINCIPALS_KEYS
-declare -a PRINCIPALS_VALUES
-
-# Prompt for the number of identities
-read -p "Enter the number of identities to use (e.g., 8, 16, etc): " NUM_IDENTITIES
-
-# Generate the IDENTITIES array based on the input
-IDENTITIES=()
-for ((i=1; i<=NUM_IDENTITIES; i++)); do
-  IDENTITIES+=("player$i")
-done
-
-# Display the selected identities
-echo "Using the following identities: ${IDENTITIES[@]}"
+IDENTITIES=("player1" "player2" "player3" "player4" "player5" "player6" "player7" "player8")
+PRINCIPALS=()
 
 # Create a tournament and capture the tournament ID
 echo "Creating a tournament..."
-TOURNAMENT_ID=$(dfx canister call $CANISTER_NAME createTournament '("Test Tournament", 1625151600000, "100 ICP", 1627730000000)' | perl -nle 'print $1 if /\((\d+) : nat\)/')
+TOURNAMENT_ID=$(dfx canister call $CANISTER_NAME createTournament '("Test Tournament", 1625151600000, "100 ICP", 1627730000000)' | grep -o '(\([0-9]*\) : nat)' | sed 's/[^0-9]*//g')
 
 # Check if the tournament was created successfully
 if [ -z "$TOURNAMENT_ID" ]; then
@@ -39,10 +30,14 @@ for identity in "${IDENTITIES[@]}"; do
   echo "Using identity: \"$identity\" to join tournament."
   JOIN_RESULT=$(dfx canister call $CANISTER_NAME joinTournament "($TOURNAMENT_ID)")
   echo "Join result for $identity: $JOIN_RESULT"
-  PRINCIPAL=$(dfx identity get-principal | awk -F'"' '/Principal/ {print $2}')
-  PRINCIPALS_KEYS+=("$identity")
-  PRINCIPALS_VALUES+=("$PRINCIPAL")
-  echo "Principal for $identity: $PRINCIPAL"
+  
+  if [[ "$JOIN_RESULT" == *"(true)"* ]]; then
+    PRINCIPAL=$(dfx identity get-principal | grep -oP '(?<=Principal\s\").*?(?=\")')
+    PRINCIPALS+=("$identity: $PRINCIPAL")
+    echo "Principal for $identity: $PRINCIPAL"
+  else
+    echo "Failed to join tournament for $identity"
+  fi
 done
 
 # Switch to admin identity and update the bracket
@@ -57,8 +52,8 @@ fetch_and_parse_bracket() {
   echo "Updated tournament bracket: $TOURNAMENT_BRACKET"
 
   MATCH_PARTICIPANTS=()
-  MATCH_IDS=($(echo "$TOURNAMENT_BRACKET" | perl -nle 'print $1 if /id = (\d+)/'))
-  MATCH_PARTICIPANT_BLOCKS=($(echo "$TOURNAMENT_BRACKET" | perl -nle 'print $1 if /participants = vec \{([^}]+)\}/'))
+  MATCH_IDS=($(echo "$TOURNAMENT_BRACKET" | grep -o 'id = [0-9]*' | awk '{print $3}'))
+  MATCH_PARTICIPANT_BLOCKS=($(echo "$TOURNAMENT_BRACKET" | grep -o 'participants = vec {[^}]*}' | sed 's/participants = vec {//g' | sed 's/}//g'))
   for (( i=0; i<${#MATCH_IDS[@]}; i++ )); do
     PARTICIPANTS=$(echo "${MATCH_PARTICIPANT_BLOCKS[$i]}" | sed 's/, / /g')
     MATCH_PARTICIPANTS[$i]=$PARTICIPANTS

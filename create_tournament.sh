@@ -5,7 +5,8 @@ CANISTER_NAME="tournament_backend"
 
 # Define admin identity
 ADMIN_IDENTITY="bizkit"
-declare -A PRINCIPALS
+declare -a PRINCIPALS_KEYS
+declare -a PRINCIPALS_VALUES
 
 # Prompt for the number of identities
 read -p "Enter the number of identities to use (e.g., 8, 16, etc): " NUM_IDENTITIES
@@ -22,7 +23,7 @@ echo "Using the following identities: ${IDENTITIES[@]}"
 # Use the admin identity to create a tournament and capture the tournament ID
 echo "Creating a tournament..."
 dfx identity use $ADMIN_IDENTITY
-TOURNAMENT_ID=$(dfx canister call $CANISTER_NAME createTournament '("Test Tournament", 1625151600000, "100 ICP", 1627730000000)' | grep -oP '(?<=\().*?(?=\ : nat\))')
+TOURNAMENT_ID=$(dfx canister call $CANISTER_NAME createTournament '("Test Tournament", 1625151600000, "100 ICP", 1627730000000)' | perl -nle 'print $1 if /\((\d+) : nat\)/')
 
 # Check if the tournament was created successfully
 if [ -z "$TOURNAMENT_ID" ]; then
@@ -39,8 +40,9 @@ for identity in "${IDENTITIES[@]}"; do
   echo "Using identity: \"$identity\" to join tournament."
   JOIN_RESULT=$(dfx canister call $CANISTER_NAME joinTournament "($TOURNAMENT_ID)")
   echo "Join result for $identity: $JOIN_RESULT"
-  PRINCIPAL=$(dfx identity get-principal | grep -oP '(?<=Principal\s\").*?(?=\")')
-  PRINCIPALS[$identity]=$PRINCIPAL
+  PRINCIPAL=$(dfx identity get-principal | awk -F'"' '/Principal/ {print $2}')
+  PRINCIPALS_KEYS+=("$identity")
+  PRINCIPALS_VALUES+=("$PRINCIPAL")
   echo "Principal for $identity: $PRINCIPAL"
 done
 
@@ -56,8 +58,8 @@ fetch_and_parse_bracket() {
   echo "Updated tournament bracket: $TOURNAMENT_BRACKET"
 
   MATCH_PARTICIPANTS=()
-  MATCH_IDS=($(echo "$TOURNAMENT_BRACKET" | grep -oP '(?<=id = )\d+'))
-  MATCH_PARTICIPANT_BLOCKS=($(echo "$TOURNAMENT_BRACKET" | grep -oP '(?<=participants = vec \{).*?(?=\};)'))
+  MATCH_IDS=($(echo "$TOURNAMENT_BRACKET" | perl -nle 'print $1 if /id = (\d+)/'))
+  MATCH_PARTICIPANT_BLOCKS=($(echo "$TOURNAMENT_BRACKET" | perl -nle 'print $1 if /participants = vec \{([^}]+)\}/'))
   for (( i=0; i<${#MATCH_IDS[@]}; i++ )); do
     PARTICIPANTS=$(echo "${MATCH_PARTICIPANT_BLOCKS[$i]}" | sed 's/, / /g')
     MATCH_PARTICIPANTS[$i]=$PARTICIPANTS
