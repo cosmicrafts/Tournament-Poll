@@ -32,6 +32,7 @@ This project implements a tournament backend on the Internet Computer using Moto
 - DFINITY SDK installed
 - Bash shell
 - Perl (for parsing output)
+- Node.js > 16
 
 ## Project Structure
 
