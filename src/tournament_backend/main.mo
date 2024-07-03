@@ -415,40 +415,44 @@ public shared func updateBracket(tournamentId: Nat) : async Bool {
     nextMatchIdBase /= 2;
 
     // Function to recursively create matches for all rounds
-    func createAllRounds(totalRounds: Nat, currentRound: Nat, matchId: Nat) : Buffer.Buffer<Match> {
-        let newMatches = Buffer.Buffer<Match>(0);
-        if (currentRound >= totalRounds) {
-            return newMatches;
-        };
-
-        let numMatches = (totalParticipantsRound1 / (2 ** (currentRound + 1)));
-        for (i in Iter.range(0, numMatches - 1)) {
-            // Calculate next match ID correctly
-            let nextMatchIdOpt = if (currentRound + 1 == totalRounds) { 
-                null 
-            } else { 
-                ?(matchId + (i / 2) + numMatches) 
-            };
-
-            newMatches.add({
-                id = matchId + i;
-                tournamentId = tournamentId;
-                participants = [Principal.fromText("2vxsx-fae"), Principal.fromText("2vxsx-fae")];
-                result = null;
-                status = "scheduled";
-                nextMatchId = nextMatchIdOpt;
-            });
-            Debug.print("Created next round match: " # Nat.toText(matchId + i) # " with nextMatchId: " # (switch (nextMatchIdOpt) { case (?id) { Nat.toText(id) }; case null { "none" } }));
-        };
-
-        // Recursively create next round matches
-        let nextRoundMatches = createAllRounds(totalRounds, currentRound + 1, matchId + numMatches);
-        for (match in nextRoundMatches.vals()) {
-            newMatches.add(match);
-        };
-
+    func createAllRounds(totalRounds: Nat, currentRound: Nat, matchIdBase: Nat) : Buffer.Buffer<Match> {
+    let newMatches = Buffer.Buffer<Match>(0);
+    if (currentRound >= totalRounds) {
         return newMatches;
     };
+
+    let numMatches = (totalParticipantsRound1 / (2 ** (currentRound + 1)));
+    for (i in Iter.range(0, numMatches - 1)) {
+        // Calculate next match ID correctly within the current tournament's scope
+        let currentMatchId = matchIdBase + i;
+
+        // Calculate next match ID correctly
+        let nextMatchIdOpt = if (currentRound + 1 == totalRounds) { 
+            null 
+        } else { 
+            ?(matchIdBase + (i / 2) + numMatches) 
+        };
+
+        newMatches.add({
+            id = currentMatchId;
+            tournamentId = tournamentId;
+            participants = [Principal.fromText("2vxsx-fae"), Principal.fromText("2vxsx-fae")];
+            result = null;
+            status = "scheduled";
+            nextMatchId = nextMatchIdOpt;
+        });
+        Debug.print("Created next round match: " # Nat.toText(currentMatchId) # " with nextMatchId: " # (switch (nextMatchIdOpt) { case (?id) { Nat.toText(id) }; case null { "none" } }));
+    };
+
+    // Recursively create next round matches
+    let nextRoundMatches = createAllRounds(totalRounds, currentRound + 1, matchIdBase + numMatches);
+    for (match in nextRoundMatches.vals()) {
+        newMatches.add(match);
+    };
+
+    return newMatches;
+};
+
 
     let totalRounds = log2(totalParticipantsRound1);
     Debug.print("Total rounds: " # Nat.toText(totalRounds));
