@@ -1,6 +1,12 @@
 # `tournament`
 
-Welcome to your new `tournament` project and to the Internet Computer development community. By default, creating a new project adds this README and some template files to your project directory. You can edit these template files to customize your project and to include your own code to speed up the development cycle.
+## 🚀 Embarking on a Decentralized Adventure
+
+At Cosmicrafts, we believe in the power of decentralization to revolutionize internet services. That's why we've been hard at work crafting a transparent and immutable tournament system that empowers players and fosters fair competition.
+
+## 🔍 Open Source for a Decentralized Gaming Future
+
+We also believe in the power of community and open innovation. That's why we're making the Motoko code and frontend for our tournament system open source. This means developers around the world can build upon our work, creating their own decentralized tournaments, contests, and even hackathons!
 
 ## Table of Contents
 
@@ -12,14 +18,14 @@ Welcome to your new `tournament` project and to the Internet Computer developmen
   - [Main Actor](#main-actor)
 - [Running the Project Locally](#running-the-project-locally)
 - [Scripts](#scripts)
-  - [Script 1 - Register Identities (`register_identities.sh`)](#script-1---register-identities-register_identi)
-  - [Script 2 - Create Tournament and Manage Matches (`tournament_script.sh`)](#script-2---create-tournament-and-manage-matches-tournament_scriptsh)
-  - [Script 3 - Create Tournament Bracket (`create_tournament.sh`)](#script-3---create-tournament-bracket-create_tournamentsh)
+  - [Script 1 - Register Identities (`register_identities.sh`)](#script-1---register-identities-register_identities.sh)
+  - [Script 2 - Create Tournament and Manage Matches (`tournament_script.sh`)](#script-2---create-tournament-and-manage-matches-tournament_script.sh)
+  - [Script 3 - Create Tournament Bracket (`create_tournament.sh`)](#script-3---create-tournament-bracket-create_tournament.sh)
 - [Useful Resources](#useful-resources)
 
 ## Overview
 
-This project implements a tournament backend on the Internet Computer using Motoko. The backend supports creating tournaments, joining tournaments, submitting match results, and updating brackets. Additionally, admin functionalities allow for verifying and updating match results.
+This project implements a tournament backend on the Internet Computer using Motoko. The backend supports creating tournaments, joining tournaments, submitting match results, and updating brackets. Additionally, admin functionalities allow for verifying and updating match results. It also implements a basic frontend to visualize the tournaments, using Vue and Pinia as the default DFX frontend framework.
 
 ## Prerequisites
 
@@ -30,13 +36,21 @@ This project implements a tournament backend on the Internet Computer using Moto
 ## Project Structure
 
 - `main.mo`: The Motoko backend code for managing tournaments and matches.
+- `src/`: Contains all source code.
+  - `declarations/`: Auto-generated files for canisters.
+  - `tournament_backend/`: The backend canister.
+    - `main.mo`: The Motoko backend code.
+  - `tournament_frontend/`: The frontend code.
+    - `src/`: Source files for the frontend.
+      - `components/`: Vue components.
+      - `store/`: Pinia store setup.
+      - `views/`: Vue views.
 - `scripts/`: Contains Bash scripts for setting up identities, creating tournaments, and managing matches.
-
+  - `register_identities.sh`
+  - `tournament_script.sh`
+  - `create_tournament.sh`
+  
 ## Motoko Backend
-
-### Imports
-
-Reference to necessary imports for the Motoko backend.
 
 ### Main Actor
 
@@ -58,6 +72,8 @@ dfx start --background
 # Deploys your canisters to the replica and generates your candid interface
 dfx deploy
 ```
+
+Once the job completes, your application will be available at `http://localhost:4943?canisterId={asset_canister_id}`.
 
 ## Scripts
 
