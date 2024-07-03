@@ -4,6 +4,7 @@ type Tournament =
    expirationDate: Time;
    id: nat;
    isActive: bool;
+   matchCounter: nat;
    name: text;
    participants: vec principal;
    prizePool: text;
@@ -24,10 +25,10 @@ type Match =
    tournamentId: nat;
  };
 service : {
-  adminUpdateMatch: (nat, text) -> (bool);
+  adminUpdateMatch: (nat, nat, text) -> (bool);
   createTournament: (text, Time, text, Time) -> (nat);
   deleteAllTournaments: () -> (bool);
-  disputeMatch: (nat, text) -> (bool);
+  disputeMatch: (nat, nat, text) -> (bool);
   getActiveTournaments: () -> (vec Tournament) query;
   getAllTournaments: () -> (vec Tournament) query;
   getInactiveTournaments: () -> (vec Tournament) query;
@@ -35,7 +36,7 @@ service : {
   getTournamentBracket: (nat) -> (record {matches: vec Match;}) query;
   joinTournament: (nat) -> (bool);
   submitFeedback: (nat, text) -> (bool);
-  submitMatchResult: (nat, text) -> (bool);
+  submitMatchResult: (nat, nat, text) -> (bool);
   updateBracket: (nat) -> (bool);
   updateBracketAfterMatchUpdate: (nat, nat, principal) -> ();
 }

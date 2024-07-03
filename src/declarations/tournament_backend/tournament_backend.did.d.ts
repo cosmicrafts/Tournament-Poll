@@ -17,16 +17,17 @@ export interface Tournament {
   'name' : string,
   'isActive' : boolean,
   'expirationDate' : Time,
+  'matchCounter' : bigint,
   'registeredParticipants' : Array<Principal>,
   'bracketCreated' : boolean,
   'prizePool' : string,
   'startDate' : Time,
 }
 export interface _SERVICE {
-  'adminUpdateMatch' : ActorMethod<[bigint, string], boolean>,
+  'adminUpdateMatch' : ActorMethod<[bigint, bigint, string], boolean>,
   'createTournament' : ActorMethod<[string, Time, string, Time], bigint>,
   'deleteAllTournaments' : ActorMethod<[], boolean>,
-  'disputeMatch' : ActorMethod<[bigint, string], boolean>,
+  'disputeMatch' : ActorMethod<[bigint, bigint, string], boolean>,
   'getActiveTournaments' : ActorMethod<[], Array<Tournament>>,
   'getAllTournaments' : ActorMethod<[], Array<Tournament>>,
   'getInactiveTournaments' : ActorMethod<[], Array<Tournament>>,
@@ -34,7 +35,7 @@ export interface _SERVICE {
   'getTournamentBracket' : ActorMethod<[bigint], { 'matches' : Array<Match> }>,
   'joinTournament' : ActorMethod<[bigint], boolean>,
   'submitFeedback' : ActorMethod<[bigint, string], boolean>,
-  'submitMatchResult' : ActorMethod<[bigint, string], boolean>,
+  'submitMatchResult' : ActorMethod<[bigint, bigint, string], boolean>,
   'updateBracket' : ActorMethod<[bigint], boolean>,
   'updateBracketAfterMatchUpdate' : ActorMethod<
     [bigint, bigint, Principal],

@@ -92,7 +92,7 @@ fetch_and_parse_bracket
 echo "Verifying and updating matches as admin..."
 dfx identity use $ADMIN_IDENTITY
 for match_id in "${MATCH_IDS[@]}"; do
-  ADMIN_UPDATE_RESULT=$(dfx canister call $CANISTER_NAME adminUpdateMatch "($match_id, \"3-2\")")
+  ADMIN_UPDATE_RESULT=$(dfx canister call $CANISTER_NAME adminUpdateMatch "($TOURNAMENT_ID, $match_id, \"3-2\")")
   echo "Admin update result for match $match_id: $ADMIN_UPDATE_RESULT"
 done
 
@@ -103,7 +103,7 @@ fetch_and_parse_bracket
 # Finalize the tournament if necessary
 if [ ${#MATCH_IDS[@]} -eq 1 ]; then
   echo "Finalizing the tournament..."
-  FINALIZE_RESULT=$(dfx canister call $CANISTER_NAME adminUpdateMatch "(0, \"3-2\")")
+  FINALIZE_RESULT=$(dfx canister call $CANISTER_NAME adminUpdateMatch "($TOURNAMENT_ID, 0, \"3-2\")")
   echo "Finalization result: $FINALIZE_RESULT"
   FINAL_BRACKET=$(dfx canister call $CANISTER_NAME getTournamentBracket "($TOURNAMENT_ID)")
   echo "Final tournament bracket: $FINAL_BRACKET"

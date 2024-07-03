@@ -10,7 +10,6 @@ interface Match {
   tournamentId: bigint;
 }
 
-
 interface Tournament {
   id: bigint;
   participants: Principal[];
@@ -66,17 +65,17 @@ export const useTournamentStore = defineStore('tournament', {
     async updateBracket(tournamentId: bigint) {
       return await tournament_backend.updateBracket(tournamentId);
     },
-    async adminUpdateMatch(matchId: bigint, score: string) {
-      return await tournament_backend.adminUpdateMatch(matchId, score);
+    async adminUpdateMatch(tournamentId: bigint, matchId: bigint, score: string) {
+      return await tournament_backend.adminUpdateMatch(tournamentId, matchId, score);
     },
     async submitFeedback(tournamentId: bigint, feedback: string) {
       return await tournament_backend.submitFeedback(tournamentId, feedback);
     },
-    async submitMatchResult(matchId: bigint, score: string) {
-      return await tournament_backend.submitMatchResult(matchId, score);
+    async submitMatchResult(tournamentId: bigint, matchId: bigint, score: string) {
+      return await tournament_backend.submitMatchResult(tournamentId, matchId, score);
     },
-    async disputeMatch(matchId: bigint, reason: string) {
-      return await tournament_backend.disputeMatch(matchId, reason);
+    async disputeMatch(tournamentId: bigint, matchId: bigint, reason: string) {
+      return await tournament_backend.disputeMatch(tournamentId, matchId, reason);
     },
     async deleteAllTournaments() {
       return await tournament_backend.deleteAllTournaments();

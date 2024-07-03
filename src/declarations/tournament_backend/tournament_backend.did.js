@@ -6,6 +6,7 @@ export const idlFactory = ({ IDL }) => {
     'name' : IDL.Text,
     'isActive' : IDL.Bool,
     'expirationDate' : Time,
+    'matchCounter' : IDL.Nat,
     'registeredParticipants' : IDL.Vec(IDL.Principal),
     'bracketCreated' : IDL.Bool,
     'prizePool' : IDL.Text,
@@ -22,14 +23,14 @@ export const idlFactory = ({ IDL }) => {
     'tournamentId' : IDL.Nat,
   });
   return IDL.Service({
-    'adminUpdateMatch' : IDL.Func([IDL.Nat, IDL.Text], [IDL.Bool], []),
+    'adminUpdateMatch' : IDL.Func([IDL.Nat, IDL.Nat, IDL.Text], [IDL.Bool], []),
     'createTournament' : IDL.Func(
         [IDL.Text, Time, IDL.Text, Time],
         [IDL.Nat],
         [],
       ),
     'deleteAllTournaments' : IDL.Func([], [IDL.Bool], []),
-    'disputeMatch' : IDL.Func([IDL.Nat, IDL.Text], [IDL.Bool], []),
+    'disputeMatch' : IDL.Func([IDL.Nat, IDL.Nat, IDL.Text], [IDL.Bool], []),
     'getActiveTournaments' : IDL.Func([], [IDL.Vec(Tournament)], ['query']),
     'getAllTournaments' : IDL.Func([], [IDL.Vec(Tournament)], ['query']),
     'getInactiveTournaments' : IDL.Func([], [IDL.Vec(Tournament)], ['query']),
@@ -45,7 +46,11 @@ export const idlFactory = ({ IDL }) => {
       ),
     'joinTournament' : IDL.Func([IDL.Nat], [IDL.Bool], []),
     'submitFeedback' : IDL.Func([IDL.Nat, IDL.Text], [IDL.Bool], []),
-    'submitMatchResult' : IDL.Func([IDL.Nat, IDL.Text], [IDL.Bool], []),
+    'submitMatchResult' : IDL.Func(
+        [IDL.Nat, IDL.Nat, IDL.Text],
+        [IDL.Bool],
+        [],
+      ),
     'updateBracket' : IDL.Func([IDL.Nat], [IDL.Bool], []),
     'updateBracketAfterMatchUpdate' : IDL.Func(
         [IDL.Nat, IDL.Nat, IDL.Principal],
