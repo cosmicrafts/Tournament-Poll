@@ -18,6 +18,7 @@ export const idlFactory = ({ IDL }) => {
       IDL.Record({ 'winner' : IDL.Principal, 'score' : IDL.Text })
     ),
     'participants' : IDL.Vec(IDL.Principal),
+    'nextMatchId' : IDL.Opt(IDL.Nat),
     'tournamentId' : IDL.Nat,
   });
   return IDL.Service({
@@ -48,7 +49,7 @@ export const idlFactory = ({ IDL }) => {
     'updateBracket' : IDL.Func([IDL.Nat], [IDL.Bool], []),
     'updateBracketAfterMatchUpdate' : IDL.Func(
         [IDL.Nat, IDL.Nat, IDL.Principal],
-        [IDL.Bool],
+        [],
         [],
       ),
   });

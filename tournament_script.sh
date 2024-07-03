@@ -11,6 +11,12 @@ declare -a PRINCIPALS_VALUES
 # Prompt for the number of identities
 read -p "Enter the number of identities to use (e.g., 8, 16, etc): " NUM_IDENTITIES
 
+# Validate input
+if ! [[ "$NUM_IDENTITIES" =~ ^[0-9]+$ ]] || [ "$NUM_IDENTITIES" -le 0 ]; then
+  echo "Invalid number of identities. Please enter a positive integer."
+  exit 1
+fi
+
 # Generate the IDENTITIES array based on the input
 IDENTITIES=()
 for ((i=1; i<=NUM_IDENTITIES; i++)); do
@@ -38,6 +44,13 @@ for identity in "${IDENTITIES[@]}"; do
   dfx identity use $identity
   echo "Using identity: \"$identity\" to join tournament."
   JOIN_RESULT=$(dfx canister call $CANISTER_NAME joinTournament "($TOURNAMENT_ID)")
+  
+  # Check for join success
+  if [[ "$JOIN_RESULT" == *"error"* ]]; then
+    echo "Failed to join tournament with identity: $identity"
+    continue
+  fi
+
   echo "Join result for $identity: $JOIN_RESULT"
   PRINCIPAL=$(dfx identity get-principal | awk -F'"' '/Principal/ {print $2}')
   PRINCIPALS_KEYS+=("$identity")
@@ -49,6 +62,12 @@ done
 echo "Updating bracket as admin..."
 dfx identity use $ADMIN_IDENTITY
 BRACKET_UPDATE_RESULT=$(dfx canister call $CANISTER_NAME updateBracket "($TOURNAMENT_ID)")
+
+if [[ "$BRACKET_UPDATE_RESULT" == *"error"* ]]; then
+  echo "Failed to update bracket."
+  exit 1
+fi
+
 echo "Bracket update result: $BRACKET_UPDATE_RESULT"
 
 # Function to fetch and parse the tournament bracket

@@ -7,6 +7,7 @@ export interface Match {
   'status' : string,
   'result' : [] | [{ 'winner' : Principal, 'score' : string }],
   'participants' : Array<Principal>,
+  'nextMatchId' : [] | [bigint],
   'tournamentId' : bigint,
 }
 export type Time = bigint;
@@ -37,7 +38,7 @@ export interface _SERVICE {
   'updateBracket' : ActorMethod<[bigint], boolean>,
   'updateBracketAfterMatchUpdate' : ActorMethod<
     [bigint, bigint, Principal],
-    boolean
+    undefined
   >,
 }
 export declare const idlFactory: IDL.InterfaceFactory;
