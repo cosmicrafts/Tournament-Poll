@@ -65,8 +65,8 @@ export const useTournamentStore = defineStore('tournament', {
     async updateBracket(tournamentId: bigint) {
       return await tournament_backend.updateBracket(tournamentId);
     },
-    async adminUpdateMatch(tournamentId: bigint, matchId: bigint, score: string) {
-      return await tournament_backend.adminUpdateMatch(tournamentId, matchId, score);
+    async adminUpdateMatch(tournamentId: bigint, matchId: bigint, winner: bigint, score: string) {
+      return await tournament_backend.adminUpdateMatch(tournamentId, matchId, winner, score);
     },
     async submitFeedback(tournamentId: bigint, feedback: string) {
       return await tournament_backend.submitFeedback(tournamentId, feedback);

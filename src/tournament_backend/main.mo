@@ -179,43 +179,50 @@ actor Backend {
         return true;
     };
 
-    public shared ({caller}) func adminUpdateMatch(tournamentId: Nat, matchId: Nat, score: Text) : async Bool {
-        if (caller != Principal.fromText("vam5o-bdiga-izgux-6cjaz-53tck-eezzo-fezki-t2sh6-xefok-dkdx7-pae") and
-            caller != Principal.fromText("bdycp-b54e6-fvsng-ouies-a6zfm-khbnh-wcq3j-pv7qt-gywe2-em245-3ae")) {
+    public shared ({caller}) func adminUpdateMatch(tournamentId: Nat, matchId: Nat, winnerIndex: Nat, score: Text) : async Bool {
+    if (caller != Principal.fromText("vam5o-bdiga-izgux-6cjaz-53tck-eezzo-fezki-t2sh6-xefok-dkdx7-pae") and
+        caller != Principal.fromText("bdycp-b54e6-fvsng-ouies-a6zfm-khbnh-wcq3j-pv7qt-gywe2-em245-3ae")) {
+        return false;
+    };
+
+    let matchOpt = Array.find<Match>(matches, func (m: Match) : Bool { m.id == matchId and m.tournamentId == tournamentId });
+    switch (matchOpt) {
+        case (?match) {
+            if (winnerIndex >= Array.size<Principal>(match.participants)) {
+                return false; // Invalid winner index
+            };
+
+            let winnerPrincipal = match.participants[winnerIndex];
+            
+            var updatedMatches = Buffer.Buffer<Match>(matches.size());
+            for (m in matches.vals()) {
+                if (m.id == matchId and m.tournamentId == tournamentId) {
+                    updatedMatches.add({
+                        id = m.id;
+                        tournamentId = m.tournamentId;
+                        participants = m.participants;
+                        result = ?{winner = winnerPrincipal; score = score};
+                        status = "verified";
+                        nextMatchId = m.nextMatchId;
+                    });
+                } else {
+                    updatedMatches.add(m);
+                }
+            };
+            matches := Buffer.toArray(updatedMatches);
+
+            // Update the bracket directly by advancing the winner
+            Debug.print("Admin verified match: " # Nat.toText(matchId) # " with winner: " # Principal.toText(winnerPrincipal));
+            ignore updateBracketAfterMatchUpdate(match.tournamentId, match.id, winnerPrincipal);
+
+            return true;
+        };
+        case null {
             return false;
         };
+    }
+};
 
-        let matchIndex = Array.find<Match>(matches, func (m: Match) : Bool { m.id == matchId and m.tournamentId == tournamentId });
-        switch (matchIndex) {
-            case (?match) {
-                var updatedMatches = Buffer.Buffer<Match>(matches.size());
-                for (m in matches.vals()) {
-                    if (m.id == matchId and m.tournamentId == tournamentId) {
-                        updatedMatches.add({
-                            id = m.id;
-                            tournamentId = m.tournamentId;
-                            participants = m.participants;
-                            result = ?{winner = m.participants[0]; score = score}; // Assuming the winner is the first participant
-                            status = "verified";
-                            nextMatchId = m.nextMatchId;
-                        });
-                    } else {
-                        updatedMatches.add(m);
-                    }
-                };
-                matches := Buffer.toArray(updatedMatches);
-
-                // Update the bracket directly by advancing the winner
-                Debug.print("Admin verified match: " # Nat.toText(matchId) # " with winner: " # Principal.toText(match.participants[0]));
-                ignore updateBracketAfterMatchUpdate(match.tournamentId, match.id, match.participants[0]);
-
-                return true;
-            };
-            case null {
-                return false;
-            };
-        }
-    };
 
     // Calculate the base-2 logarithm of a number
     func log2(x: Nat): Nat {

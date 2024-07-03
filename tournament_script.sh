@@ -5,8 +5,6 @@ CANISTER_NAME="tournament_backend"
 
 # Define admin identity
 ADMIN_IDENTITY="bizkit"
-declare -a PRINCIPALS_KEYS
-declare -a PRINCIPALS_VALUES
 
 # Prompt for the number of identities
 read -p "Enter the number of identities to use (e.g., 8, 16, etc): " NUM_IDENTITIES
@@ -38,7 +36,7 @@ fi
 
 echo "Created tournament with ID: $TOURNAMENT_ID"
 
-# Join tournament with different identities and fetch their principals
+# Join tournament with different identities
 echo "Joining tournament with different identities..."
 for identity in "${IDENTITIES[@]}"; do
   dfx identity use $identity
@@ -52,10 +50,6 @@ for identity in "${IDENTITIES[@]}"; do
   fi
 
   echo "Join result for $identity: $JOIN_RESULT"
-  PRINCIPAL=$(dfx identity get-principal | awk -F'"' '/Principal/ {print $2}')
-  PRINCIPALS_KEYS+=("$identity")
-  PRINCIPALS_VALUES+=("$PRINCIPAL")
-  echo "Principal for $identity: $PRINCIPAL"
 done
 
 # Switch to admin identity and update the bracket
@@ -72,28 +66,42 @@ echo "Bracket update result: $BRACKET_UPDATE_RESULT"
 
 # Function to fetch and parse the tournament bracket
 fetch_and_parse_bracket() {
+  echo "Fetching tournament bracket..."
   TOURNAMENT_BRACKET=$(dfx canister call $CANISTER_NAME getTournamentBracket "($TOURNAMENT_ID)")
-  echo "Updated tournament bracket: $TOURNAMENT_BRACKET"
+  echo "Fetched tournament bracket: $TOURNAMENT_BRACKET"
 
-  MATCH_PARTICIPANTS=()
-  MATCH_IDS=($(echo "$TOURNAMENT_BRACKET" | perl -nle 'print $1 if /id = (\d+)/'))
-  MATCH_PARTICIPANT_BLOCKS=($(echo "$TOURNAMENT_BRACKET" | perl -nle 'print $1 if /participants = vec \{([^}]+)\}/'))
-  for (( i=0; i<${#MATCH_IDS[@]}; i++ )); do
-    PARTICIPANTS=$(echo "${MATCH_PARTICIPANT_BLOCKS[$i]}" | sed 's/, / /g')
-    MATCH_PARTICIPANTS[$i]=$PARTICIPANTS
-    echo "Match ${MATCH_IDS[$i]} participants: $PARTICIPANTS"
-  done
+  # Extract match IDs using a more robust regex
+  MATCH_IDS=($(echo "$TOURNAMENT_BRACKET" | grep -oP 'id = \K\d+'))
+  echo "Match IDs: ${MATCH_IDS[@]}"
 }
 
 # Fetch the initial bracket
 fetch_and_parse_bracket
 
+# Generate hardcoded scores and determine the winner
+generate_score_and_winner() {
+  if (( RANDOM % 2 )); then
+    echo "3-1 0"
+  else
+    echo "1-3 1"
+  fi
+}
+
 # Switch to admin identity to verify and update matches
 echo "Verifying and updating matches as admin..."
 dfx identity use $ADMIN_IDENTITY
 for match_id in "${MATCH_IDS[@]}"; do
-  ADMIN_UPDATE_RESULT=$(dfx canister call $CANISTER_NAME adminUpdateMatch "($TOURNAMENT_ID, $match_id, \"3-2\")")
+  RESULT=$(generate_score_and_winner)
+  SCORE=$(echo $RESULT | cut -d' ' -f1)
+  WINNER_INDEX=$(echo $RESULT | cut -d' ' -f2)
+  echo "Updating match ID: $match_id with score: $SCORE and winner index: $WINNER_INDEX"
+  ADMIN_UPDATE_RESULT=$(dfx canister call $CANISTER_NAME adminUpdateMatch "($TOURNAMENT_ID, $match_id, $WINNER_INDEX, \"$SCORE\")")
   echo "Admin update result for match $match_id: $ADMIN_UPDATE_RESULT"
+  
+  if [[ "$ADMIN_UPDATE_RESULT" == *"error"* ]]; then
+    echo "Failed to update match $match_id."
+    continue
+  fi
 done
 
 # Fetch and display the tournament bracket after the first round
@@ -103,7 +111,10 @@ fetch_and_parse_bracket
 # Finalize the tournament if necessary
 if [ ${#MATCH_IDS[@]} -eq 1 ]; then
   echo "Finalizing the tournament..."
-  FINALIZE_RESULT=$(dfx canister call $CANISTER_NAME adminUpdateMatch "($TOURNAMENT_ID, 0, \"3-2\")")
+  FINAL_RESULT=$(generate_score_and_winner)
+  FINAL_SCORE=$(echo $FINAL_RESULT | cut -d' ' -f1)
+  FINAL_WINNER_INDEX=$(echo $FINAL_RESULT | cut -d' ' -f2)
+  FINALIZE_RESULT=$(dfx canister call $CANISTER_NAME adminUpdateMatch "($TOURNAMENT_ID, 0, $FINAL_WINNER_INDEX, \"$FINAL_SCORE\")")
   echo "Finalization result: $FINALIZE_RESULT"
   FINAL_BRACKET=$(dfx canister call $CANISTER_NAME getTournamentBracket "($TOURNAMENT_ID)")
   echo "Final tournament bracket: $FINAL_BRACKET"

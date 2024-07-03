@@ -23,7 +23,11 @@ export const idlFactory = ({ IDL }) => {
     'tournamentId' : IDL.Nat,
   });
   return IDL.Service({
-    'adminUpdateMatch' : IDL.Func([IDL.Nat, IDL.Nat, IDL.Text], [IDL.Bool], []),
+    'adminUpdateMatch' : IDL.Func(
+        [IDL.Nat, IDL.Nat, IDL.Nat, IDL.Text],
+        [IDL.Bool],
+        [],
+      ),
     'createTournament' : IDL.Func(
         [IDL.Text, Time, IDL.Text, Time],
         [IDL.Nat],

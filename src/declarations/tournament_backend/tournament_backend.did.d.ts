@@ -24,7 +24,7 @@ export interface Tournament {
   'startDate' : Time,
 }
 export interface _SERVICE {
-  'adminUpdateMatch' : ActorMethod<[bigint, bigint, string], boolean>,
+  'adminUpdateMatch' : ActorMethod<[bigint, bigint, bigint, string], boolean>,
   'createTournament' : ActorMethod<[string, Time, string, Time], bigint>,
   'deleteAllTournaments' : ActorMethod<[], boolean>,
   'disputeMatch' : ActorMethod<[bigint, bigint, string], boolean>,

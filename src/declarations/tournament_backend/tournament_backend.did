@@ -25,7 +25,7 @@ type Match =
    tournamentId: nat;
  };
 service : {
-  adminUpdateMatch: (nat, nat, text) -> (bool);
+  adminUpdateMatch: (nat, nat, nat, text) -> (bool);
   createTournament: (text, Time, text, Time) -> (nat);
   deleteAllTournaments: () -> (bool);
   disputeMatch: (nat, nat, text) -> (bool);
