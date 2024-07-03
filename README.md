@@ -1,4 +1,4 @@
-# `tournament`
+# `Tournament System`
 
 ## 🚀 Embarking on a Decentralized Adventure
 
@@ -35,11 +35,10 @@ This project implements a tournament backend on the Internet Computer using Moto
 
 ## Project Structure
 
-- `main.mo`: The Motoko backend code for managing tournaments and matches.
 - `src/`: Contains all source code.
   - `declarations/`: Auto-generated files for canisters.
   - `tournament_backend/`: The backend canister.
-    - `main.mo`: The Motoko backend code.
+    - `main.mo`: The Motoko backend code for managing tournaments and matches.
   - `tournament_frontend/`: The frontend code.
     - `src/`: Source files for the frontend.
       - `components/`: Vue components.
@@ -54,7 +53,7 @@ This project implements a tournament backend on the Internet Computer using Moto
 
 ### Main Actor
 
-Explanation of the main actor and its functions:
+Here are some of the main functions:
 - Creating tournaments
 - Joining tournaments
 - Submitting feedback
@@ -79,7 +78,8 @@ Once the job completes, your application will be available at `http://localhost:
 
 ### Script 1 - Register Identities (`register_identities.sh`)
 
-This script registers multiple identities for testing purposes. 
+This script registers multiple identities for testing purposes with the name of player#.
+It will prompt how many identities you want to create to automate the script tournament automated creation process
 
 To run the script:
 ```bash
@@ -97,7 +97,8 @@ To run the script:
 
 ### Script 3 - Create Tournament Bracket (`create_tournament.sh`)
 
-This script creates a tournament bracket with participants and fetches the initial bracket.
+This script only registers players and creates a tournament bracket with participants and fetches the initial bracket.
+For a more complete tournament management use script 2.
 
 To run the script:
 ```bash
