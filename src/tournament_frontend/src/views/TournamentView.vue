@@ -33,10 +33,12 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue';
 import { useTournamentStore } from '@/store';
+import { useAuthStore } from '@/store/auth';
 import { useRoute } from 'vue-router';
 import Match from '@/components/Match.vue';
 
 const tournamentStore = useTournamentStore();
+const authStore = useAuthStore();
 const route = useRoute();
 const tournamentId = ref(BigInt(route.params.id));
 
@@ -93,7 +95,7 @@ const fetchTournamentDetails = async () => {
 };
 
 const joinTournament = async () => {
-  await tournamentStore.joinTournament(tournamentId.value);
+  await tournamentStore.joinTournament(tournamentId.value, authStore.principalId);
   await fetchTournamentDetails();
 };
 
