@@ -1,116 +1,472 @@
-# `Tournament System`
+# Tournament System
 
-## 🚀 Embarking on a Decentralized Adventure
+<div align="center">
 
-At Cosmicrafts, we believe in the power of decentralization to revolutionize internet services. That's why we've been hard at work crafting a transparent and immutable tournament system that empowers players and fosters fair competition.
+A decentralized, transparent, and immutable tournament management system built on the Internet Computer.
 
-## 🔍 Open Source for a Decentralized Gaming Future
+[![Internet Computer](https://img.shields.io/badge/Internet%20Computer-Blockchain-blue)](https://internetcomputer.org/)
+[![Motoko](https://img.shields.io/badge/Backend-Motoko-purple)](https://internetcomputer.org/docs/current/motoko/main/motoko)
+[![Vue.js](https://img.shields.io/badge/Frontend-Vue.js%203-green)](https://vuejs.org/)
+[![TypeScript](https://img.shields.io/badge/Language-TypeScript-blue)](https://www.typescriptlang.org/)
 
-We also believe in the power of community and open innovation. That's why we're making the Motoko code and frontend for our tournament system open source. This means developers around the world can build upon our work, creating their own decentralized tournaments, contests, and even hackathons!
+</div>
 
-## Table of Contents
+## 🚀 Overview
 
-- [Overview](#overview)
+At **Cosmicrafts**, we believe in the power of decentralization to revolutionize internet services. This open-source tournament system leverages blockchain technology to create a transparent, fair, and tamper-proof platform for competitive gaming and esports.
+
+### Why Decentralized Tournaments?
+
+- **🔒 Transparency**: All tournament data is stored on-chain, ensuring complete transparency
+- **⚡ Immutability**: Match results cannot be altered once verified
+- **🎯 Fair Competition**: Automated bracket generation with randomized seeding
+- **🌍 Global Access**: Accessible from anywhere with multi-wallet authentication
+- **🔐 Secure**: Leverages Internet Computer's blockchain security
+
+## ✨ Features
+
+### 🎮 Tournament Management
+- **Create & Join Tournaments**: Easy tournament creation with configurable parameters
+- **Automated Bracket Generation**: Single-elimination brackets with proper seeding and bye handling
+- **Match Scheduling**: Automatic match organization with next-match tracking
+- **Result Submission**: Players can submit match results directly
+- **Admin Verification**: Admin controls for verifying and managing match outcomes
+- **Dispute System**: Built-in dispute resolution mechanism
+
+### 🔐 Multi-Wallet Authentication
+- **Internet Identity**: Native ICP authentication
+- **NFID**: Social login for Web3
+- **MetaMask**: Ethereum wallet integration
+- **Phantom**: Solana wallet support
+- **Google OAuth**: Traditional social login
+- **Other Options**: Extensible auth system via Auth0
+
+### 📊 Frontend Features
+- **Real-time Tournament View**: Live bracket visualization
+- **User Dashboard**: Personal tournament history and stats
+- **Modern UI/UX**: Beautiful, responsive design
+- **Multi-device Support**: Works on desktop, tablet, and mobile
+
+## 📋 Table of Contents
+
 - [Prerequisites](#prerequisites)
+- [Tech Stack](#tech-stack)
 - [Project Structure](#project-structure)
-- [Motoko Backend](#motoko-backend)
-  - [Imports](#imports)
-  - [Main Actor](#main-actor)
-- [Running the Project Locally](#running-the-project-locally)
-- [Scripts](#scripts)
-  - [Script 1 - Register Identities (`register_identities.sh`)](#script-1---register-identities-register_identities.sh)
-  - [Script 2 - Create Tournament and Manage Matches (`tournament_script.sh`)](#script-2---create-tournament-and-manage-matches-tournament_script.sh)
-  - [Script 3 - Create Tournament Bracket (`create_tournament.sh`)](#script-3---create-tournament-bracket-create_tournament.sh)
-- [Useful Resources](#useful-resources)
+- [Getting Started](#getting-started)
+  - [Installation](#installation)
+  - [Development Setup](#development-setup)
+  - [Running Locally](#running-locally)
+- [Backend API](#backend-api)
+- [Authentication](#authentication)
+- [Automation Scripts](#automation-scripts)
+- [Deployment](#deployment)
+- [Contributing](#contributing)
+- [Resources](#resources)
+- [License](#license)
 
-## Overview
+## 🔧 Prerequisites
 
-This project implements a tournament backend on the Internet Computer using Motoko. The backend supports creating tournaments, joining tournaments, submitting match results, and updating brackets. Additionally, admin functionalities allow for verifying and updating match results. It also implements a basic frontend to visualize the tournaments, using Vue and Pinia as the default DFX frontend framework.
+Before you begin, ensure you have the following installed:
 
-## Prerequisites
+- **DFINITY SDK (dfx)** - Version 0.15.0 or higher
+  ```bash
+  sh -ci "$(curl -fsSL https://internetcomputer.org/install.sh)"
+  ```
+- **Node.js** - Version 16.0.0 or higher
+- **npm** - Version 7.0.0 or higher
+- **Bash shell** - For running automation scripts
+- **Perl** - For script output parsing (usually pre-installed on Unix systems)
 
-- DFINITY SDK installed
-- Bash shell
-- Perl (for parsing output)
-- Node.js > 16
+### Optional
+- **Git** - For version control
+- **MetaMask** - Browser extension for Ethereum wallet auth
+- **Phantom** - Browser extension for Solana wallet auth
 
-## Project Structure
+## 🛠 Tech Stack
 
-- `src/`: Contains all source code.
-  - `declarations/`: Auto-generated files for canisters.
-  - `tournament_backend/`: The backend canister.
-    - `main.mo`: The Motoko backend code for managing tournaments and matches.
-  - `tournament_frontend/`: The frontend code.
-    - `src/`: Source files for the frontend.
-      - `components/`: Vue components.
-      - `store/`: Pinia store setup.
-      - `views/`: Vue views.
-- `scripts/`: Contains Bash scripts for setting up identities, creating tournaments, and managing matches.
-  - `register_identities.sh`
-  - `tournament_script.sh`
-  - `create_tournament.sh`
-  
-## Motoko Backend
+### Backend
+- **Motoko**: Smart contract language for Internet Computer
+- **Internet Computer**: Blockchain platform
+- **Candid**: Interface description language
 
-### Main Actor
+### Frontend
+- **Vue.js 3**: Progressive JavaScript framework
+- **TypeScript**: Type-safe development
+- **Pinia**: State management
+- **Vue Router**: Client-side routing
+- **Vite**: Build tool and dev server
+- **SCSS**: Styling
 
-Here are some of the main functions:
-- Creating tournaments
-- Joining tournaments
-- Submitting feedback
-- Submitting and verifying match results
-- Updating the tournament bracket
+### Authentication & Integration
+- **@dfinity/agent**: ICP agent for canister communication
+- **@dfinity/auth-client**: Authentication library
+- **@dfinity/identity**: Identity management
+- **@solana/web3.js**: Solana integration
+- **TweetNaCl**: Cryptographic operations
 
-## Running the Project Locally
+## 📁 Project Structure
 
-If you want to test your project locally, you can use the following commands:
-
-```bash
-# Starts the replica, running in the background
-dfx start --background
-
-# Deploys your canisters to the replica and generates your candid interface
-dfx deploy
+```
+tournament-poll/
+├── src/
+│   ├── tournament_backend/          # Motoko backend canister
+│   │   └── main.mo                  # Core tournament logic
+│   ├── tournament_frontend/         # Vue.js frontend
+│   │   ├── src/
+│   │   │   ├── components/          # Reusable Vue components
+│   │   │   │   ├── Match.vue
+│   │   │   │   └── UserInfo.vue
+│   │   │   ├── views/               # Page components
+│   │   │   │   ├── HomeView.vue
+│   │   │   │   ├── LoginView.vue
+│   │   │   │   ├── DashboardView.vue
+│   │   │   │   └── TournamentView.vue
+│   │   │   ├── store/               # Pinia state management
+│   │   │   │   ├── auth.ts          # Authentication store
+│   │   │   │   └── index.ts
+│   │   │   ├── services/            # External services
+│   │   │   │   ├── MetaMaskService.ts
+│   │   │   │   └── PhantomService.ts
+│   │   │   ├── router/              # Vue Router config
+│   │   │   │   └── index.ts
+│   │   │   ├── assets/              # Images and static files
+│   │   │   └── main.js              # App entry point
+│   │   ├── public/                  # Public assets
+│   │   ├── package.json
+│   │   ├── tsconfig.json
+│   │   └── vite.config.js
+│   └── declarations/                # Auto-generated Candid bindings
+├── register_identities.sh           # Identity registration script
+├── tournament_script.sh             # Full tournament automation
+├── create_tournament.sh             # Bracket creation script
+├── dfx.json                         # DFX configuration
+├── package.json                     # Root package config
+└── README.md
 ```
 
-Once the job completes, your application will be available at `http://localhost:4943?canisterId={asset_canister_id}`.
+## 🚀 Getting Started
 
-## Scripts
+### Installation
 
-### Script 1 - Register Identities (`register_identities.sh`)
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/your-username/tournament-poll.git
+   cd tournament-poll
+   ```
 
-This script registers multiple identities for testing purposes with the name of player#.
-It will prompt how many identities you want to create to automate the script tournament automated creation process
+2. **Install dependencies**
+   ```bash
+   npm install
+   ```
 
-To run the script:
+### Development Setup
+
+1. **Start the Internet Computer local replica**
+   ```bash
+   dfx start --clean --background
+   ```
+
+2. **Deploy the canisters**
+   ```bash
+   dfx deploy
+   ```
+
+3. **Start the frontend development server**
+   ```bash
+   cd src/tournament_frontend
+   npm start
+   ```
+
+4. **Access the application**
+   - Frontend: `http://localhost:3000`
+   - Backend Candid UI: `http://localhost:4943?canisterId={canister_id}`
+
+### Running Locally
+
+For a complete local setup:
+
+```bash
+# Start the local replica
+dfx start --background
+
+# Deploy all canisters
+dfx deploy
+
+# The frontend will be available at the URL shown in the deploy output
+```
+
+To get the canister ID for the frontend:
+```bash
+dfx canister id tournament_frontend
+```
+
+## 📡 Backend API
+
+### Core Functions
+
+#### Tournament Management
+
+**`createTournament`**
+```motoko
+createTournament(name: Text, startDate: Time, prizePool: Text, expirationDate: Time) : async Nat
+```
+Creates a new tournament. Returns tournament ID. (Admin only)
+
+**`joinTournament`**
+```motoko
+joinTournament(tournamentId: Nat) : async Bool
+```
+Join an active tournament. Returns success status.
+
+**`updateBracket`**
+```motoko
+updateBracket(tournamentId: Nat) : async Bool
+```
+Generate tournament bracket with randomized seeding and bye handling.
+
+**`getActiveTournaments`**
+```motoko
+getActiveTournaments() : async [Tournament]
+```
+Query all active tournaments accepting registrations.
+
+**`getAllTournaments`**
+```motoko
+getAllTournaments() : async [Tournament]
+```
+Query all tournaments (active and inactive).
+
+**`getTournamentBracket`**
+```motoko
+getTournamentBracket(tournamentId: Nat) : async {matches: [Match]}
+```
+Get the complete bracket for a tournament.
+
+#### Match Management
+
+**`submitMatchResult`**
+```motoko
+submitMatchResult(tournamentId: Nat, matchId: Nat, score: Text) : async Bool
+```
+Submit match results (participant only). Sets status to "pending verification".
+
+**`adminUpdateMatch`**
+```motoko
+adminUpdateMatch(tournamentId: Nat, matchId: Nat, winnerIndex: Nat, score: Text) : async Bool
+```
+Verify and update match results (admin only). Auto-advances winner in bracket.
+
+**`disputeMatch`**
+```motoko
+disputeMatch(tournamentId: Nat, matchId: Nat, reason: Text) : async Bool
+```
+File a dispute for a match result.
+
+#### Feedback
+
+**`submitFeedback`**
+```motoko
+submitFeedback(tournamentId: Nat, feedbackText: Text) : async Bool
+```
+Submit feedback for a tournament.
+
+### Data Types
+
+```motoko
+type Tournament = {
+    id: Nat;
+    name: Text;
+    startDate: Time.Time;
+    prizePool: Text;
+    expirationDate: Time.Time;
+    participants: [Principal];
+    registeredParticipants: [Principal];
+    isActive: Bool;
+    bracketCreated: Bool;
+    matchCounter: Nat;
+};
+
+type Match = {
+    id: Nat;
+    tournamentId: Nat;
+    participants: [Principal];
+    result: ?{winner: Principal; score: Text};
+    status: Text; // "scheduled", "pending verification", "verified"
+    nextMatchId: ?Nat;
+};
+```
+
+## 🔐 Authentication
+
+The system supports multiple authentication methods through a unified authentication store:
+
+### Supported Methods
+
+1. **Internet Identity** - Native ICP authentication
+   - Decentralized identity management
+   - No password required
+   - Privacy-preserving
+
+2. **NFID** - Social login for Web3
+   - Email-based Web3 identity
+   - User-friendly onboarding
+
+3. **MetaMask** - Ethereum wallet
+   - Sign message to generate ICP identity
+   - Deterministic key generation from signature
+
+4. **Phantom** - Solana wallet
+   - Sign message to generate ICP identity
+   - Cross-chain compatibility
+
+5. **Google OAuth** - Traditional social login
+   - Familiar login flow
+   - Keys generated from Google Sub ID
+
+### How It Works
+
+All authentication methods generate an Ed25519 key pair that's used to create an ICP identity:
+
+1. User authenticates with their chosen method
+2. A unique signature/identifier is obtained
+3. SHA-256 hash of the signature creates a deterministic seed
+4. Ed25519 key pair is generated from the seed
+5. ICP identity is created and used for all backend interactions
+
+## 🤖 Automation Scripts
+
+### 1. Register Identities (`register_identities.sh`)
+
+Quickly create multiple test identities for development and testing.
+
 ```bash
 ./register_identities.sh
 ```
 
-### Script 2 - Create Tournament and Manage Matches (`tournament_script.sh`)
+**Prompts:**
+- Number of identities to create
 
-This script creates a tournament with a given number of participants, creates the bracket, and verifies matches.
+**Output:**
+- Creates identities named `player1`, `player2`, etc.
+- Lists all created principals
 
-To run the script:
+### 2. Full Tournament Management (`tournament_script.sh`)
+
+Complete tournament lifecycle automation: create, register players, generate bracket, and simulate matches.
+
 ```bash
 ./tournament_script.sh
 ```
 
-### Script 3 - Create Tournament Bracket (`create_tournament.sh`)
+**Features:**
+- Creates a tournament
+- Registers players
+- Generates bracket
+- Simulates match results
+- Verifies matches
+- Displays final bracket
 
-This script only registers players and creates a tournament bracket with participants and fetches the initial bracket.
-For a more complete tournament management use script 2.
+### 3. Create Tournament Bracket (`create_tournament.sh`)
 
-To run the script:
+Creates a tournament and generates the initial bracket only.
+
 ```bash
 ./create_tournament.sh
 ```
 
-## Useful Resources
+**Use case:** When you want to manually manage match results.
 
-To learn more before you start working with `tournament`, see the following documentation available online:
+## 🌐 Deployment
 
-- [Quick Start](https://internetcomputer.org/docs/current/developer-docs/setup/deploy-locally)
+### Deploy to IC Mainnet
+
+1. **Set up cycles wallet** (if not already done)
+   ```bash
+   dfx identity get-wallet
+   ```
+
+2. **Deploy to mainnet**
+   ```bash
+   dfx deploy --network ic
+   ```
+
+3. **Get canister IDs**
+   ```bash
+   dfx canister id tournament_backend --network ic
+   dfx canister id tournament_frontend --network ic
+   ```
+
+### Environment Variables
+
+Create a `.env` file in `src/tournament_frontend/`:
+
+```env
+VITE_NETWORK=ic                    # or "local"
+VITE_GOOGLE_CLIENT_ID=your_id_here
+VITE_AUTH0_REDIRECT_URI=your_uri_here
+```
+
+### Production Build
+
+```bash
+npm run build
+```
+
+This creates optimized production builds in `src/tournament_frontend/dist/`.
+
+## 🤝 Contributing
+
+We welcome contributions from the community! Here's how you can help:
+
+1. **Fork the repository**
+2. **Create a feature branch**
+   ```bash
+   git checkout -b feature/amazing-feature
+   ```
+3. **Commit your changes**
+   ```bash
+   git commit -m 'Add amazing feature'
+   ```
+4. **Push to the branch**
+   ```bash
+   git push origin feature/amazing-feature
+   ```
+5. **Open a Pull Request**
+
+### Development Guidelines
+
+- Follow existing code style
+- Add tests for new features
+- Update documentation as needed
+- Keep commits atomic and well-described
+
+## 📚 Resources
+
+### Internet Computer
+- [Quick Start Guide](https://internetcomputer.org/docs/current/developer-docs/setup/deploy-locally)
 - [SDK Developer Tools](https://internetcomputer.org/docs/current/developer-docs/setup/install)
+- [IC Developer Portal](https://internetcomputer.org/developers)
+
+### Motoko
 - [Motoko Programming Language Guide](https://internetcomputer.org/docs/current/motoko/main/motoko)
+- [Motoko Base Library](https://internetcomputer.org/docs/current/motoko/main/base/)
 - [Motoko Language Quick Reference](https://internetcomputer.org/docs/current/motoko/main/language-manual)
+
+### Frontend
+- [Vue.js Documentation](https://vuejs.org/)
+- [Pinia Documentation](https://pinia.vuejs.org/)
+- [Vite Documentation](https://vitejs.dev/)
+
+## 📄 License
+
+This project is open source and available for developers worldwide to build upon and create their own decentralized tournaments, contests, and hackathons.
+
+---
+
+<div align="center">
+
+**Built with ❤️ by [Cosmicrafts](https://cosmicrafts.com)**
+
+*Empowering the future of decentralized gaming*
+
+</div>
