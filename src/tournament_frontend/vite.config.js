@@ -18,6 +18,16 @@ export default defineConfig({
       },
     },
   },
+  define: {
+    'process.env': '{}',
+    'global': 'globalThis',
+  },
+  resolve: {
+    alias: [
+      { find: 'declarations', replacement: fileURLToPath(new URL('../declarations', import.meta.url)) },
+      { find: '@', replacement: fileURLToPath(new URL('./src', import.meta.url)) },
+    ],
+  },
   server: {
     proxy: {
       '/api': {
@@ -28,14 +38,8 @@ export default defineConfig({
   },
   plugins: [
     vue(),
-    environment('all', { prefix: 'CANISTER_' }),
-    environment('all', { prefix: 'DFX_' }),
+    environment('all', { prefix: 'VITE_CANISTER_' }),
+    environment('all', { prefix: 'VITE_DFX_' }),
   ],
-  resolve: {
-    alias: [
-      { find: 'declarations', replacement: fileURLToPath(new URL('../declarations', import.meta.url)) },
-      { find: '@', replacement: fileURLToPath(new URL('./src', import.meta.url)) },
-    ],
-  },
   publicDir: 'src/assets',
 });
