@@ -43,8 +43,8 @@ export const useAuthStore = defineStore('auth', {
       const hashBuffer = await crypto.subtle.digest('SHA-256', encodedSignature);
       const seed = new Uint8Array(hashBuffer.slice(0, 32));
       const keyPair = nacl.sign.keyPair.fromSeed(seed);
-      const publicKeyBase64 = base64Encode(keyPair.publicKey);
-      const privateKeyBase64 = base64Encode(keyPair.secretKey);
+      const publicKeyBase64 = toBase64(keyPair.publicKey);
+      const privateKeyBase64 = toBase64(keyPair.secretKey);
       this.createIdentity(publicKeyBase64, privateKeyBase64);
       this.isAuthenticated = true;
     },
@@ -54,8 +54,8 @@ export const useAuthStore = defineStore('auth', {
       const hashBuffer = await crypto.subtle.digest('SHA-256', encodedSub);
       const seed = new Uint8Array(hashBuffer.slice(0, 32));
       const keyPair = nacl.sign.keyPair.fromSeed(seed);
-      const publicKeyBase64 = base64Encode(keyPair.publicKey);
-      const privateKeyBase64 = base64Encode(keyPair.secretKey);
+      const publicKeyBase64 = toBase64(keyPair.publicKey);
+      const privateKeyBase64 = toBase64(keyPair.secretKey);
       this.createIdentity(publicKeyBase64, privateKeyBase64);
       this.isAuthenticated = true;
     },
@@ -79,6 +79,11 @@ export const useAuthStore = defineStore('auth', {
     },
   },
 });
+
+// Helper function to convert bytes to base64
+function toBase64(bytes: Uint8Array) {
+  return base64Encode(bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength) as ArrayBuffer);
+}
 
 // Helper function to convert base64 to Uint8Array
 function base64ToUint8Array(base64: string) {

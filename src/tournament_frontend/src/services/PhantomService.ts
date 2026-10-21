@@ -1,5 +1,4 @@
 // src/services/PhantomService.ts
-import { Connection, clusterApiUrl } from '@solana/web3.js';
 
 declare global {
   interface Window {
@@ -8,12 +7,6 @@ declare global {
 }
 
 class PhantomService {
-  connection: Connection;
-
-  constructor() {
-    this.connection = new Connection(clusterApiUrl('mainnet-beta')); // Adjust based on your needs
-  }
-
   async connectWallet(): Promise<string | null> {
     if (window.solana && window.solana.isPhantom) {
       console.log('Phantom wallet found.');

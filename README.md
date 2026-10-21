@@ -72,8 +72,8 @@ Before you begin, ensure you have the following installed:
   ```bash
   sh -ci "$(curl -fsSL https://internetcomputer.org/install.sh)"
   ```
-- **Node.js** - Version 16.0.0 or higher
-- **npm** - Version 7.0.0 or higher
+- **Node.js** - Version 20.19.0 or higher (required by Vite 7)
+- **npm** - Version 10.0.0 or higher
 - **Bash shell** - For running automation scripts
 - **Perl** - For script output parsing (usually pre-installed on Unix systems)
 
@@ -101,7 +101,6 @@ Before you begin, ensure you have the following installed:
 - **@dfinity/agent**: ICP agent for canister communication
 - **@dfinity/auth-client**: Authentication library
 - **@dfinity/identity**: Identity management
-- **@solana/web3.js**: Solana integration
 - **TweetNaCl**: Cryptographic operations
 
 ## 📁 Project Structure
@@ -111,6 +110,7 @@ tournament-poll/
 ├── src/
 │   ├── tournament_backend/          # Motoko backend canister
 │   │   └── main.mo                  # Core tournament logic
+│   ├── declarations/                # Auto-generated Candid bindings (dfx generate)
 │   ├── tournament_frontend/         # Vue.js frontend
 │   │   ├── src/
 │   │   │   ├── components/          # Reusable Vue components
@@ -135,7 +135,6 @@ tournament-poll/
 │   │   ├── package.json
 │   │   ├── tsconfig.json
 │   │   └── vite.config.js
-│   └── declarations/                # Auto-generated Candid bindings
 ├── register_identities.sh           # Identity registration script
 ├── tournament_script.sh             # Full tournament automation
 ├── create_tournament.sh             # Bracket creation script
@@ -235,6 +234,30 @@ Query all active tournaments accepting registrations.
 getAllTournaments() : async [Tournament]
 ```
 Query all tournaments (active and inactive).
+
+**`getInactiveTournaments`**
+```motoko
+getInactiveTournaments() : async [Tournament]
+```
+Query only the tournaments that are no longer active.
+
+**`getRegisteredUsers`**
+```motoko
+getRegisteredUsers(tournamentId: Nat) : async [Principal]
+```
+List the principals registered for a tournament.
+
+**`updateBracketAfterMatchUpdate`**
+```motoko
+updateBracketAfterMatchUpdate(tournamentId: Nat, matchId: Nat, winner: Principal) : async ()
+```
+Push a winner into the next round. Called internally by `adminUpdateMatch`; it has no caller check of its own.
+
+**`deleteAllTournaments`**
+```motoko
+deleteAllTournaments() : async Bool
+```
+Wipe every tournament and match. No caller check, so anyone can call it on a deployed canister.
 
 **`getTournamentBracket`**
 ```motoko
